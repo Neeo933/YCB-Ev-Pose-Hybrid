@@ -1,0 +1,15 @@
+# 忽略数据集
+ycb_ev_data/
+dataset/
+__pycache__/
+*.pyc
+
+# 忽略巨大的模型权重 (如果你的模型 >100MB 必须忽略，或者用 Git LFS)
+*.pth
+
+# 忽略系统文件
+.DS_Store
+.vscode/
+
+# 忽略压缩包
+*.zip
