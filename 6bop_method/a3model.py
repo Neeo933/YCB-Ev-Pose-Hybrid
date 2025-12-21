@@ -237,7 +237,16 @@ class GMGPVNet(nn.Module):
         # 4. AFDM 特征扩散 (如果有点云)
         if event_points is not None:
             p_coords = event_points[:, :, :2] 
-            p_feats = self.pointnet(event_points)
+           # B. 准备 PointNet 需要的输入 (归一化 x,y 到 0-1，与 t,p 匹配)
+            # [修改点] 这里非常重要！
+            points_norm = event_points.clone()
+            points_norm[:, :, 0] = points_norm[:, :, 0] / 128.0 # Normalize X
+            points_norm[:, :, 1] = points_norm[:, :, 1] / 128.0 # Normalize Y
+            
+            # C. 提取点云特征
+            p_feats = self.pointnet(points_norm) # [B, 128, N]
+            
+            # D. 扩散并融合
             f_2d = self.afdm(f_2d, p_coords, p_feats)
         
         # 5. 上采样 (64x64 -> 128x128)
