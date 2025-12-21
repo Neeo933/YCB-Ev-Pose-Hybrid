@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
-from torch.cuda.amp import autocast, GradScaler
+from torch.amp import autocast, GradScaler # 新版PyTorch建议写法，旧版用 torch.cuda.amp 也可以
 import numpy as np
 import os
 from tqdm import tqdm
@@ -16,34 +16,55 @@ from a5loss import PVNetLoss
 
 # ================= 1. 全局配置 =================
 CONFIG = {
-    # 路径设置 (请确保这些路径存在)
-    "processed_dir": "./processed_data",
-    "dataset_root": "../ycb_ev_data/dataset/test_pbr", 
-    
-    # 训练超参数
-    "batch_size": 16,          # 显存不够改小 (8 或 4)
-    "num_workers": 6,          # CPU 核心数
-    "lr": 1e-4,                # 初始学习率
-    "epochs": 50,              # 训练轮数
-    
-    # 硬件与保存
+    "processed_dir": "../dataset/processed_data",
+    "dataset_root": "../dataset/test_pbr", 
+    "batch_size": 32,
+    "num_workers": 6,
+    "lr": 1e-4,
+    "epochs": 50,
     "device": "cuda" if torch.cuda.is_available() else "cpu",
-    "save_dir": "./checkpoints",
-    "visualize_freq": 1        # 每多少个 Epoch 保存一次可视化图片
+    "save_dir": "./checkpointsv4",
+    "visualize_freq": 1 
 }
 
+# ================= 2. 辅助工具：绘制 Loss 曲线 =================
+def plot_loss_curve(history, save_path):
+    """
+    绘制训练过程中的 Loss 变化曲线
+    history: {'total': [], 'vec': [], 'seg': []}
+    """
+    epochs = range(1, len(history['total']) + 1)
+    
+    plt.figure(figsize=(12, 5))
+    
+    # 子图1: Total Loss (加权后的)
+    plt.subplot(1, 2, 1)
+    plt.plot(epochs, history['total'], 'b-', label='Weighted Total Loss')
+    plt.title('Total Loss Curve')
+    plt.xlabel('Epoch')
+    plt.ylabel('Loss')
+    plt.grid(True)
+    plt.legend()
+    
+    # 子图2: 分项 Loss (原始值)
+    plt.subplot(1, 2, 2)
+    plt.plot(epochs, history['vec'], 'r-', label='Vector Loss (Raw)')
+    plt.plot(epochs, history['seg'], 'g-', label='Seg Loss (Raw)')
+    plt.title('Component Loss Curve')
+    plt.xlabel('Epoch')
+    plt.ylabel('Loss')
+    plt.grid(True)
+    plt.legend()
+    
+    plt.tight_layout()
+    plt.savefig(save_path)
+    plt.close()
 
-# ================= 2. 可视化监控函数 (升级版) =================
+# ================= 3. 可视化监控函数 =================
 def save_visualization(epoch, batch_data, pred_vec, pred_mask, save_path):
-    """
-    升级版可视化：增加 Pred Mask 展示，调整布局为 2行4列
-    """
-    # 取 Batch 中的第一张图
     inputs = batch_data['input']
     depth = batch_data['depth']
-    # 注意：这里的 gt_mask 应该是我们用 depth 算出来的那个，稍后在 train 里传入
-    # 这里我们先取 dataset 里的原始 mask 做对比
-    gt_mask_orig = batch_data['mask']
+    gt_mask = batch_data['mask']
     gt_vec = batch_data['target_field']
     
     # 1. 还原 RGB
@@ -55,12 +76,10 @@ def save_visualization(epoch, batch_data, pred_vec, pred_mask, save_path):
     d_vis = depth[0, 0].cpu().detach().numpy()
     
     # 3. Mask 处理
-    # 原始方形 Mask
-    m_gt_box = gt_mask_orig[0, 0].cpu().detach().numpy()
-    # 预测 Mask (Sigmoid -> 0~1)
+    m_gt = gt_mask[0, 0].cpu().detach().numpy()
     m_pred = torch.sigmoid(pred_mask[0, 0]).cpu().detach().numpy()
     
-    # 4. Vector Field (归一化显示 X 分量)
+    # 4. Vector Field (X channel)
     def norm_v(v):
         v = v[0, 0].cpu().detach().numpy()
         return (v - v.min()) / (v.max() - v.min() + 1e-6)
@@ -68,46 +87,40 @@ def save_visualization(epoch, batch_data, pred_vec, pred_mask, save_path):
     v_gt = norm_v(gt_vec)
     v_pred = norm_v(pred_vec)
 
-    # 5. 绘图 (2行4列)
+    # 5. 绘图
     fig, axs = plt.subplots(2, 4, figsize=(16, 8))
     
-    # --- Row 1: 输入与 Mask ---
     axs[0,0].imshow(rgb)
     axs[0,0].set_title(f"Ep{epoch} Input RGB")
     
     axs[0,1].imshow(d_vis, cmap='plasma')
     axs[0,1].set_title("Input Depth")
     
-    axs[0,2].imshow(m_gt_box, cmap='gray')
-    axs[0,2].set_title("GT Mask (Box/Depth)") # 看看是不是变成了轮廓？
+    axs[0,2].imshow(m_gt, cmap='gray')
+    axs[0,2].set_title("GT Mask") 
     
     axs[0,3].imshow(m_pred, cmap='gray')
-    axs[0,3].set_title("Pred Mask Prob") # <--- 这里就是你要看的预测Mask
+    axs[0,3].set_title("Pred Mask Prob")
     
-    # --- Row 2: 向量场 ---
     axs[1,0].imshow(v_gt, cmap='jet')
     axs[1,0].set_title("GT Vector X")
     
     axs[1,1].imshow(v_pred, cmap='jet')
     axs[1,1].set_title("Pred Vector X")
     
-    # 留两个空位或者画点别的
-    axs[1,2].axis('off')
-    axs[1,3].axis('off')
+    axs[1,2].axis('off'); axs[1,3].axis('off')
     
     plt.tight_layout()
     os.makedirs(save_path, exist_ok=True)
     plt.savefig(f"{save_path}/epoch_{epoch:03d}.png")
     plt.close()
 
-# ================= 3. 主训练流程 =================
+# ================= 4. 主训练流程 =================
 def train():
-    # 初始化目录
     os.makedirs(CONFIG["save_dir"], exist_ok=True)
-    vis_dir = os.path.join(CONFIG["save_dir"], "vis_logs1221")
+    vis_dir = os.path.join(CONFIG["save_dir"], "vis_logs")
     
-    # --- A. 数据加载 ---
-    print(f"正在加载数据 (Root: {CONFIG['dataset_root']})...")
+    print(f"Loading Data from {CONFIG['dataset_root']}...")
     dataset = GMGPoseDataset(
         processed_dir=CONFIG["processed_dir"], 
         dataset_root=CONFIG["dataset_root"],
@@ -115,88 +128,92 @@ def train():
         mode='train'
     )
     
-    loader = DataLoader(
-        dataset, 
-        batch_size=CONFIG["batch_size"], 
-        shuffle=True, 
-        num_workers=CONFIG["num_workers"],
-        pin_memory=True,
-        drop_last=True
-    )
-    print(f"加载完成，共 {len(dataset)} 个样本。")
-
-    # --- B. 模型构建 ---
-    print("正在构建 GMG-PVNet...")
-    model = GMGPVNet(num_keypoints=9).to(CONFIG["device"])
+    loader = DataLoader(dataset, batch_size=CONFIG["batch_size"], 
+                        shuffle=True, num_workers=CONFIG["num_workers"],
+                        pin_memory=True, drop_last=True)
     
-    # --- C. 优化器与 Loss ---
+    model = GMGPVNet(num_keypoints=9).to(CONFIG["device"])
     optimizer = optim.Adam(model.parameters(), lr=CONFIG["lr"])
     criterion = PVNetLoss().to(CONFIG["device"])
-    scaler = GradScaler() # 混合精度训练
+    scaler = GradScaler()
 
     best_loss = float('inf')
+    
+    # [新增] 用于记录历史 Loss
+    loss_history = {'total': [], 'vec': [], 'seg': []}
 
-    # --- D. 训练循环 ---
-    print("🚀 开始训练!")
+    print("🚀 Start Training!")
     for epoch in range(1, CONFIG["epochs"] + 1):
         model.train()
-        epoch_loss = 0.0
-        vec_loss_sum = 0.0
-        seg_loss_sum = 0.0
+        
+        # 累计器
+        meter_total = 0.0
+        meter_vec = 0.0
+        meter_seg = 0.0
         
         pbar = tqdm(loader, desc=f"Epoch {epoch}/{CONFIG['epochs']}")
         
         for batch in pbar:
-            # 1. 数据搬运到 GPU
-            inputs = batch['input'].to(CONFIG["device"])   # [B, 4, H, W]
-            depth = batch['depth'].to(CONFIG["device"])    # [B, 1, H, W]
+            inputs = batch['input'].to(CONFIG["device"])   
+            depth = batch['depth'].to(CONFIG["device"])    
             gt_vec = batch['target_field'].to(CONFIG["device"])
+            
+            # [重要提示] 
+            # 这里的 gt_mask 应该是你在 dataset.py 里用深度图截断法生成的 mask
+            # 如果你 dataset.py 还是旧版，这里 mask 还是方形的。请确保 dataset.py 已更新！
             gt_mask = batch['mask'].to(CONFIG["device"])
             
-            # 2. 前向传播 (混合精度)
             optimizer.zero_grad()
-            with autocast():
-                # 注意：这里还没有用 event_points，设为 None
+            with autocast(device_type='cuda'):
                 pred_vec, pred_mask = model(inputs, depth, event_points=None)
                 
-                # 计算 Loss
-                loss, l_vec, l_seg = criterion(pred_vec, pred_mask, gt_vec, gt_mask)
+                # l_vec, l_seg 是原始 Loss
+                _, l_vec, l_seg = criterion(pred_vec, pred_mask, gt_vec, gt_mask)
 
+                # [核心] 手动加权：向量场权重 = 10.0
+                # 这是真正用于反向传播的 loss
                 weighted_loss = l_seg + 10.0 * l_vec 
 
-            
-            # 3. 反向传播
             scaler.scale(weighted_loss).backward()
             scaler.step(optimizer)
             scaler.update()
             
-            # 4. 记录日志
-            epoch_loss += loss.item()
-            vec_loss_sum += l_vec.item()
-            seg_loss_sum += l_seg.item()
+            # 记录数据
+            meter_total += weighted_loss.item()
+            meter_vec += l_vec.item()
+            meter_seg += l_seg.item()
             
             pbar.set_postfix({
-                "Total": f"{loss.item():.3f}",
-                "Vec": f"{l_vec.item():.3f}",
+                "W_Total": f"{weighted_loss.item():.3f}", # 显示加权后的总Loss
+                "Vec": f"{l_vec.item():.4f}",
                 "Seg": f"{l_seg.item():.3f}"
             })
 
-        # --- E. Epoch 总结 ---
-        avg_loss = epoch_loss / len(loader)
-        avg_vec = vec_loss_sum / len(loader)
-        avg_seg = seg_loss_sum / len(loader)
+        # --- Epoch 结束处理 ---
+        avg_total = meter_total / len(loader)
+        avg_vec = meter_vec / len(loader)
+        avg_seg = meter_seg / len(loader)
         
-        print(f"Epoch {epoch} 结束 | Total: {avg_loss:.4f} (Vec: {avg_vec:.4f}, Seg: {avg_seg:.4f})")
+        # 1. 更新历史记录
+        loss_history['total'].append(avg_total)
+        loss_history['vec'].append(avg_vec)
+        loss_history['seg'].append(avg_seg)
         
-        # 保存模型
+        # 2. 绘制并保存曲线图
+        plot_loss_curve(loss_history, f"{CONFIG['save_dir']}/loss_curve.png")
+        
+        print(f"Ep {epoch} Done | Weighted Total: {avg_total:.4f} (Vec: {avg_vec:.4f}, Seg: {avg_seg:.4f})")
+        
+        # 3. 保存模型
         torch.save(model.state_dict(), f"{CONFIG['save_dir']}/last.pth")
-        if avg_loss < best_loss:
-            best_loss = avg_loss
+        
+        # 使用加权后的 Total Loss 来判断最佳模型
+        if avg_total < best_loss:
+            best_loss = avg_total
             torch.save(model.state_dict(), f"{CONFIG['save_dir']}/best.pth")
-            print("🏆 新的最佳模型已保存!")
+            print("🏆 New Best Model Saved!")
 
-        # 可视化
-
+        # 4. 可视化
         if epoch % CONFIG["visualize_freq"] == 0:
             save_visualization(epoch, batch, pred_vec, pred_mask, vis_dir)
 

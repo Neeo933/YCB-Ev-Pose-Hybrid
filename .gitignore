@@ -2,6 +2,7 @@
 ycb_ev_data/
 dataset/
 __pycache__/
+6bop_method/processed_data
 *.pyc
 
 # 忽略巨大的模型权重 (如果你的模型 >100MB 必须忽略，或者用 Git LFS)
@@ -13,3 +14,6 @@ __pycache__/
 
 # 忽略压缩包
 *.zip
+*.gz
+*.tar
+

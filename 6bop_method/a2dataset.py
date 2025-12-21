@@ -47,10 +47,16 @@ class GMGPoseDataset(Dataset):
                 bbox = info_item["bbox_visib"] 
                 visib_fract = info_item.get("visib_fract", 0.0)
 
-                if visib_fract < 0.1: 
+                if visib_fract < 0.5: 
                     skip_count += 1
                     continue
-                
+
+                # # 过滤极小的物体 (例如像素面积小于 1000)
+                # # 防止 crop 出来全是马赛克
+                # if bbox[2] * bbox[3] < 1000:
+                #     skip_count += 1
+                #     continue
+                    
                 if bbox[2] <= 0 or bbox[3] <= 0:
                     skip_count += 1
                     continue
@@ -104,93 +110,7 @@ class GMGPoseDataset(Dataset):
     def __len__(self):
         return len(self.sample_list)
 
-    # def __getitem__(self, idx):
-    #     s = self.sample_list[idx]
-        
-    #     # 1. 读取 RGB
-    #     rgb = cv2.imread(str(s['rgb_path']))
-    #     if rgb is None: raise ValueError(f"Image error: {s['rgb_path']}")
-        
-    #     # 2. 读取 MTS
-    #     mts = cv2.imread(str(s['mts_path']), cv2.IMREAD_GRAYSCALE)
-    #     if mts is None: mts = np.zeros_like(rgb[:,:,0])
-        
-    #     img_h, img_w = rgb.shape[:2]
-
-
-    #     # === [新增/修改] 内存中实时生成 Mask ===
-    #     # 创建一个全黑的底图
-    #     mask = np.zeros((img_h, img_w), dtype=np.uint8)
-        
-    #     # 获取原始 bbox
-    #     bx, by, bw, bh = s['bbox']
-        
-    #     # 将 bbox 区域填白 (255)
-    #     # 这就是告诉网络：在这个方框里的，都是需要预测向量的有效区域
-    #     mask[by:by+bh, bx:bx+bw] = 255
-
-    #     # 3. [新增] 读取 Depth (必须用 -1 读取原始 16-bit 数据)
-    #     depth = cv2.imread(str(s['depth_path']), cv2.IMREAD_UNCHANGED)
-    #     if depth is None: 
-    #         # 容错：如果找不到深度图，给一个全黑的，避免报错
-    #         depth = np.zeros_like(rgb[:,:,0], dtype=np.uint16)
-        
-
-    #     # 4. BBox Padding
-    #     x, y, w, h = self._pad_bbox(s['bbox'], img_w, img_h)
-        
-    #     # 5. 裁剪 (Crop)
-    #     crop_rgb = rgb[y:y+h, x:x+w]
-    #     crop_mts = mts[y:y+h, x:x+w]
-    #     crop_depth = depth[y:y+h, x:x+w] # [新增]
-    #     crop_mask = mask[y:y+h, x:x+w]
-
-    #     # 6. Resize 到网络输入尺寸 (128x128)
-    #     crop_rgb = cv2.resize(crop_rgb, self.target_size)
-    #     crop_mts = cv2.resize(crop_mts, self.target_size)
-    #     crop_mask = cv2.resize(crop_mask, self.target_size, interpolation=cv2.INTER_NEAREST)
-
-    #     # [新增] 深度图 Resize (注意：使用 INTER_NEAREST 保持物理意义)
-    #     crop_depth = cv2.resize(crop_depth, self.target_size, interpolation=cv2.INTER_NEAREST)
-        
-    #     # 7. 关键点坐标变换
-    #     kpts_orig = np.load(s['npy_path'])
-    #     kpts_local = kpts_orig.copy()
-        
-    #     scale_x = self.target_size[0] / w
-    #     scale_y = self.target_size[1] / h
-    #     kpts_local[:, 0] = (kpts_orig[:, 0] - x) * scale_x
-    #     kpts_local[:, 1] = (kpts_orig[:, 1] - y) * scale_y
-        
-    #     # 8. 生成向量场
-    #     vector_field = self._generate_vector_field(kpts_local)
-        
-    #     # [新增] 处理 Mask Tensor
-    #     # 转为 0/1 float, 形状 [1, 128, 128]
-    #     mask_tensor = (crop_mask > 128).astype(np.float32)
-    #     mask_tensor = mask_tensor[np.newaxis, ...]
-
-    #     # 9. 整理 Tensor
-    #     # Input: 4 Channels (RGB + MTS)
-    #     input_tensor = np.concatenate([
-    #         crop_rgb.transpose(2, 0, 1) / 255.0, 
-    #         crop_mts[np.newaxis, ...] / 255.0
-    #     ], axis=0) 
-        
-    #     # [新增] Depth Tensor 处理
-    #     # 深度通常是 mm 单位，除以 1000 转为 米(m)，方便网络数值稳定
-    #     depth_tensor = crop_depth.astype(np.float32) / 10000.0
-    #     depth_tensor = depth_tensor[np.newaxis, ...] # [1, 128, 128]
-        
-    #     return {
-    #         'input': torch.as_tensor(input_tensor, dtype=torch.float32),      # [4, 128, 128]
-    #         'depth': torch.as_tensor(depth_tensor, dtype=torch.float32),      # [1, 128, 128] [新增]
-    #         'target_field': torch.as_tensor(vector_field, dtype=torch.float32), 
-    #         'obj_id': torch.tensor(s['obj_id'], dtype=torch.long),      
-    #         'mask': torch.as_tensor(mask_tensor, dtype=torch.float32), # <--- 返回这个!
-    #         'kpts_local': torch.as_tensor(kpts_local, dtype=torch.float32)      
-    #     }
-
+   
     def __getitem__(self, idx):
         s = self.sample_list[idx]
         
@@ -204,64 +124,77 @@ class GMGPoseDataset(Dataset):
         if mts is None: mts = np.zeros((img_h, img_w), dtype=np.uint8)
         if depth is None: depth = np.zeros((img_h, img_w), dtype=np.uint16)
         
-        # 2. BBox 处理
+        # 2. BBox 处理 (先获取原始 BBox 用于生成 Mask)
         bx, by, bw, bh = s['bbox']
         
-        # === [核心改进] 智能 Mask 生成策略 ===
-        # 步骤 A: 截取 BBox 内的深度图
-        # 注意边界保护
+        # === [核心改进] 使用 Otsu 算法生成精细 Mask ===
+        # 步骤 A: 安全裁剪深度图
         bx_safe, by_safe = max(0, bx), max(0, by)
         bw_safe = min(bw, img_w - bx_safe)
         bh_safe = min(bh, img_h - by_safe)
         
         depth_crop_raw = depth[by_safe:by_safe+bh_safe, bx_safe:bx_safe+bw_safe]
         
-        # 步骤 B: 寻找物体的“基准深度”
-        # 策略：取 BBox 中心一小块区域的中位数，避免取到边缘的噪点
+        # 步骤 B: Otsu 自动分割
+        mask_crop = np.zeros_like(depth_crop_raw, dtype=np.uint8)
+        
         if depth_crop_raw.size > 0:
-            # 过滤掉 0 值 (无效深度)
-            valid_depths = depth_crop_raw[depth_crop_raw > 0]
-            if valid_depths.size > 0:
-                # 取中位数作为物体主体深度
-                z_ref = np.median(valid_depths)
+            # 1. 提取有效深度值 (非0)
+            valid_mask = depth_crop_raw > 0
+            valid_pixels = depth_crop_raw[valid_mask]
+            
+            if valid_pixels.size > 0:
+                # 2. 归一化到 0-255 以便使用 OpenCV 的 Otsu
+                d_min = valid_pixels.min()
+                d_max = valid_pixels.max()
                 
-                # 步骤 C: 定义深度范围 (Thresholding)
-                # YCB 物体直径一般在 20cm (2000单位) 以内
-                # 我们取 +/- 15cm 作为容差范围，既能包住物体，又能剔除远的背景
-                depth_tolerance = 1500 # 1500 * 0.1mm = 150mm = 15cm
-                
-                mask_crop = (depth_crop_raw > (z_ref - depth_tolerance)) & \
-                            (depth_crop_raw < (z_ref + depth_tolerance))
-                
-                # 转为 0/255 uint8
-                mask_crop = mask_crop.astype(np.uint8) * 255
-            else:
-                # 如果这块全是 0，说明没深度，只好退化为全 1 Mask
-                mask_crop = np.ones_like(depth_crop_raw, dtype=np.uint8) * 255
-        else:
-            mask_crop = np.zeros((bh_safe, bw_safe), dtype=np.uint8)
-
-        # 步骤 D: 把 crop 的 mask 放回全图尺寸 (为了后面统一 crop/resize 流程)
+                if d_max - d_min > 5: # 如果深度有差异才分割，否则全是物体
+                    # 线性映射: (d - min) / (max - min) * 255
+                    # 注意要转成 float 计算再转 uint8
+                    norm_depth = (depth_crop_raw.astype(np.float32) - d_min) / (d_max - d_min + 1e-6) * 255
+                    norm_depth = norm_depth.astype(np.uint8)
+                    
+                    # 3. Otsu 二值化
+                    # THRESH_BINARY_INV: 我们要的是“近”的物体 (值小 -> 颜色暗)
+                    # Otsu 会把“暗”的部分(物体)和“亮”的部分(背景)分开
+                    # 所以用 INV: 小于阈值(近)的设为 255，大于阈值(远)的设为 0
+                    # 此外，原始深度为0的地方在 norm_depth 里也是 0 (最暗)，会被误判为物体
+                    # 所以我们需要先对 valid 区域做处理，或者最后用 valid_mask 过滤
+                    
+                    # 为了稳健，我们只对 valid 的像素做 Otsu
+                    # 但为了简单，我们直接做，然后把 0 值剔除
+                    thresh_val, otsu_mask = cv2.threshold(
+                        norm_depth, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU
+                    )
+                    
+                    # 4. 修正：原始深度为 0 的地方不是物体
+                    mask_crop = otsu_mask
+                    mask_crop[~valid_mask] = 0
+                    
+                else:
+                    # 深度差异太小，说明全是物体 (或者全是背景)
+                    mask_crop[valid_mask] = 255
+        
+        # 步骤 C: 把 crop 的 mask 放回全图
         full_mask = np.zeros((img_h, img_w), dtype=np.uint8)
         full_mask[by_safe:by_safe+bh_safe, bx_safe:bx_safe+bw_safe] = mask_crop
-        # ==========================================
-
-        # 3. 统一 Padding 和 最终裁剪
-        # 使用你之前的 _pad_bbox 函数获取带 padding 的框
+        # ===============================================
+    
+        # 3. 统一 Padding 和 最终裁剪 (使用 pad 后的框)
         x, y, w, h = self._pad_bbox(s['bbox'], img_w, img_h)
         
         crop_rgb = rgb[y:y+h, x:x+w]
         crop_mts = mts[y:y+h, x:x+w]
         crop_depth = depth[y:y+h, x:x+w]
-        crop_mask = full_mask[y:y+h, x:x+w] # 裁剪刚才生成的智能 Mask
+        crop_mask = full_mask[y:y+h, x:x+w] 
         
-        # 4. Resize (Mask 和 Depth 必须 Nearest)
+        # 4. Resize (保持 Nearest 插值)
         crop_rgb = cv2.resize(crop_rgb, self.target_size)
         crop_mts = cv2.resize(crop_mts, self.target_size)
         crop_depth = cv2.resize(crop_depth, self.target_size, interpolation=cv2.INTER_NEAREST)
         crop_mask = cv2.resize(crop_mask, self.target_size, interpolation=cv2.INTER_NEAREST)
         
-        # 5. 生成向量场 和 Tensor 化
+        # 5. 生成向量场
         kpts_orig = np.load(s['npy_path'])
         kpts_local = kpts_orig.copy()
         scale_x = self.target_size[0] / max(w, 1)
@@ -271,6 +204,7 @@ class GMGPoseDataset(Dataset):
         
         vector_field = self._generate_vector_field(kpts_local)
         
+        # 6. Tensor化
         input_tensor = np.concatenate([
             crop_rgb.transpose(2, 0, 1) / 255.0, 
             crop_mts[np.newaxis, ...] / 255.0
@@ -280,15 +214,17 @@ class GMGPoseDataset(Dataset):
         depth_tensor = crop_depth.astype(np.float32) / 10000.0
         depth_tensor = depth_tensor[np.newaxis, ...] 
         
-        # Mask 转 float 0/1
+        # Mask
         mask_tensor = (crop_mask > 128).astype(np.float32)
         mask_tensor = mask_tensor[np.newaxis, ...]
-
+    
         return {
             'input': torch.as_tensor(input_tensor, dtype=torch.float32),
             'depth': torch.as_tensor(depth_tensor, dtype=torch.float32),
             'target_field': torch.as_tensor(vector_field, dtype=torch.float32),
             'mask': torch.as_tensor(mask_tensor, dtype=torch.float32),
             'obj_id': torch.tensor(s['obj_id'], dtype=torch.long),
-            'kpts_local': torch.as_tensor(kpts_local, dtype=torch.float32)
+            'kpts_local': torch.as_tensor(kpts_local, dtype=torch.float32),
+            'bbox': torch.tensor(s['bbox'], dtype=torch.float32), # 用于还原坐标
+            'rgb_path': str(s['rgb_path']) # 用于读取原图可视化，转为str防止路径对象报错
         }
