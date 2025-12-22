@@ -13,7 +13,7 @@ from a3model import GMGPVNet
 # ================= 配置 =================
 CONFIG = {
     # 你的模型权重路径 (选 best.pth)
-    "model_path": "./checkpointsv4/best.pth", 
+    "model_path": "./cloudcheckpoint/with_points/best.pth", 
     "processed_dir": "../dataset/processed_data",
     "dataset_root": "../dataset/test_pbr",
     "device": "cuda" if torch.cuda.is_available() else "cpu",
@@ -28,7 +28,7 @@ CONFIG = {
         [0.0, 0.0, 1.0]
     ]),
     
-    "output_dir": "./eval_results"
+    "output_dir": "./eval_results/withcloud"
 }
 
 class PoseEvaluator:

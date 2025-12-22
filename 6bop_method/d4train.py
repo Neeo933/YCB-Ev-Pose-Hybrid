@@ -11,8 +11,8 @@ import json  # [新增] 用于保存数据
 import matplotlib.pyplot as plt
 
 # 引入你的模块
-from c2dataset import GMGPoseDataset
-from c3model import GMGPVNet
+from e2dataset import GMGPoseDataset
+from d3model import GMGPVNet
 from a5loss import PVNetLoss
 
 # ================= 1. 全局配置 =================
@@ -29,7 +29,7 @@ CONFIG = {
     "lr": 1e-4,
     "epochs": 50,
     "device": "cuda" if torch.cuda.is_available() else "cpu",
-    "base_save_dir": "./cloudcheckpoint1222",
+    "base_save_dir": "./cloudcheckpoint1222v5",
     "visualize_freq": 1 
 }
 
@@ -175,7 +175,8 @@ def train():
             depth = batch['depth'].to(CONFIG["device"])    
             gt_vec = batch['target_field'].to(CONFIG["device"])
             gt_mask = batch['mask'].to(CONFIG["device"])
-            
+            # [新增] 获取 Template
+            template = batch['template'].to(CONFIG["device"])
             # [核心逻辑] 根据配置决定是否传点云
             if CONFIG["use_event_points"]:
                 event_points = batch['event_points'].to(CONFIG["device"])
@@ -185,7 +186,7 @@ def train():
             optimizer.zero_grad()
             with autocast(device_type='cuda'):
                 # 传入 event_points (可能是 Tensor 也可能是 None)
-                pred_vec, pred_mask = model(inputs, depth, event_points=event_points)
+                pred_vec, pred_mask = model(inputs, depth,template,event_points=event_points)
                 
                 _, l_vec, l_seg = criterion(pred_vec, pred_mask, gt_vec, gt_mask)
                 # weighted_loss = l_seg + 50.0 * l_vec 

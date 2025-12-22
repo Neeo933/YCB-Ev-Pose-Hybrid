@@ -16,7 +16,35 @@ class GMGPoseDataset(Dataset):
         # 预先扫描所有样本
         self.sample_list = self._build_sample_list()
         print(f"Dataset loaded: {len(self.sample_list)} samples found in {mode} mode.")
-
+        
+    def _get_random_template(self, obj_id, scene_id):
+        """
+        随机获取一张该物体的模板图。
+        策略：
+        1. 优先取同一场景(scene_id)下的模板（如果有），这叫 "Intra-sequence"
+        2. 如果没有，就取该 obj_id 下的任意一张，这叫 "General"
+        """
+        # 模板根目录: processed_data/templates/obj_{id}
+        tpl_dir = self.processed_dir / "templates" / f"obj_{obj_id}"
+        
+        if not tpl_dir.exists():
+            # 容错：如果没有模板，返回全黑图
+            return np.zeros((128, 128, 3), dtype=np.uint8)
+        
+        # 获取所有 rgb 模板
+        all_tpls = list(tpl_dir.glob("*_rgb.png"))
+        if not all_tpls:
+            return np.zeros((128, 128, 3), dtype=np.uint8)
+            
+        # 随机选一张
+        choice = np.random.choice(all_tpls)
+        img = cv2.imread(str(choice))
+        if img is None: return np.zeros((128, 128, 3), dtype=np.uint8)
+        
+        # Resize 到标准大小
+        img = cv2.resize(img, self.target_size)
+        return img
+        
     def _build_sample_list(self):
         samples = []
         label_root = self.processed_dir / "labels"
@@ -301,6 +329,13 @@ class GMGPoseDataset(Dataset):
         pose_gt[:3, :3] = s['pose_R']
         pose_gt[:3, 3] = s['pose_t']
 
+        # === [新增] 读取 Template ===
+        template_img = self._get_random_template(s['obj_id'], s['scene_id'])
+        
+        # 转 Tensor (3, 128, 128)
+        template_tensor = template_img.transpose(2, 0, 1) / 255.0
+        # ===========================
+
     
         return {
             'input': torch.as_tensor(input_tensor, dtype=torch.float32),
@@ -316,5 +351,7 @@ class GMGPoseDataset(Dataset):
             'scale': torch.tensor([scale_x, scale_y], dtype=torch.float32),
             'offset': torch.tensor([x, y], dtype=torch.float32),
             'pose_gt': torch.tensor(pose_gt, dtype=torch.float32),
+             # [新增] 返回模板
+            'template': torch.as_tensor(template_tensor, dtype=torch.float32)
 
         }

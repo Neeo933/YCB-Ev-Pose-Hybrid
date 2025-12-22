@@ -11,25 +11,28 @@ import json  # [新增] 用于保存数据
 import matplotlib.pyplot as plt
 
 # 引入你的模块
-from c2dataset import GMGPoseDataset
-from c3model import GMGPVNet
+from f2dataset import GMGPoseDataset
+from d3model import GMGPVNet
 from a5loss import PVNetLoss
 
+## 只训练一种物体
 # ================= 1. 全局配置 =================
 CONFIG = {
 
     # --- 实验开关 (修改这里来切换实验) ---
-    "exp_name": "with_points",   # 实验名: 'no_points' 或 'with_points'
+    "exp_name": "all_objects_v1",   # 实验名: 'no_points' 或 'with_points'
     "use_event_points": True,    # 开关: False (不加点云) / True (加点云)
     # -----------------------------------
+    "target_obj_id": None,
+    
     "processed_dir": "../dataset/processed_data",
     "dataset_root": "../dataset/test_pbr", 
     "batch_size": 32,
     "num_workers": 6,
     "lr": 1e-4,
-    "epochs": 50,
+    "epochs": 100,
     "device": "cuda" if torch.cuda.is_available() else "cpu",
-    "base_save_dir": "./cloudcheckpoint1222",
+    "base_save_dir": "./cloudcheckpoint1223",
     "visualize_freq": 1 
 }
 
@@ -145,7 +148,9 @@ def train():
         processed_dir=CONFIG["processed_dir"], 
         dataset_root=CONFIG["dataset_root"],
         target_size=(128, 128),
-        mode='train'
+        mode='train',
+        target_obj_id=CONFIG["target_obj_id"] # <--- 传入这里
+
     )
     
     loader = DataLoader(dataset, batch_size=CONFIG["batch_size"], 
@@ -175,7 +180,8 @@ def train():
             depth = batch['depth'].to(CONFIG["device"])    
             gt_vec = batch['target_field'].to(CONFIG["device"])
             gt_mask = batch['mask'].to(CONFIG["device"])
-            
+            # [新增] 获取 Template
+            template = batch['template'].to(CONFIG["device"])
             # [核心逻辑] 根据配置决定是否传点云
             if CONFIG["use_event_points"]:
                 event_points = batch['event_points'].to(CONFIG["device"])
@@ -185,7 +191,7 @@ def train():
             optimizer.zero_grad()
             with autocast(device_type='cuda'):
                 # 传入 event_points (可能是 Tensor 也可能是 None)
-                pred_vec, pred_mask = model(inputs, depth, event_points=event_points)
+                pred_vec, pred_mask = model(inputs, depth,template,event_points=event_points)
                 
                 _, l_vec, l_seg = criterion(pred_vec, pred_mask, gt_vec, gt_mask)
                 # weighted_loss = l_seg + 50.0 * l_vec 
@@ -193,14 +199,14 @@ def train():
             # 阶段 1 (Epoch 1-5): 专注学习 Mask，向量场权重很低或为0
             # 阶段 2 (Epoch 6-50): Mask 稳定了，大力训练向量场
             
-            if epoch <= 5:
+            if epoch <= 10:
                 w_seg = 1.0
                 w_vec = 0.0  # 或者 1.0，先别给太大压力
             else:
                 w_seg = 1.0
                 # Mask 已经学会了，现在开始暴力拉扯向量场
                 # 之前 10.0 不够，现在可以试 20.0 或 50.0 (100可能还是太激进，建议先试 20)
-                w_vec = 20.0 
+                w_vec = 10.0 
             
             weighted_loss = w_seg * l_seg + w_vec * l_vec 
             # ============================

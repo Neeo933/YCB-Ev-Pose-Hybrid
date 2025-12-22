@@ -181,6 +181,20 @@ class GMGPVNet(nn.Module):
         
         # 分支 A: 2D CNN (RGB)
         self.backbone_rgb = FeatureExtractor(in_channels=3, out_channels=self.feat_dim)
+
+        # [新增] 分支 T: Template Backbone (RGB)
+        # 我们可以让它和 backbone_rgb 共享权重 (Siamese)，也可以独立
+        # 这里为了更强的适应性，我们定义一个独立的，但结构一样
+        self.backbone_template = FeatureExtractor(in_channels=3, out_channels=self.feat_dim)
+        
+        # [新增] 模板融合层 (Attention)
+        # 将 Template 的全局特征注入到 Search 特征图的每一个像素
+        self.template_fusion = nn.Sequential(
+            nn.Conv2d(self.feat_dim * 2, self.feat_dim, 1),
+            nn.BatchNorm2d(self.feat_dim),
+            nn.ReLU()
+        )
+
         
         # 分支 B: 几何特征 (MTS + Depth = 2通道)
         self.backbone_geo = FeatureExtractor(in_channels=2, out_channels=self.feat_dim)
@@ -214,7 +228,7 @@ class GMGPVNet(nn.Module):
         self.vector_head = nn.Conv2d(64, num_keypoints * 2, kernel_size=1)
         self.seg_head = nn.Conv2d(64, 1, kernel_size=1)
 
-    def forward(self, input_tensor, depth_tensor, event_points=None):
+    def forward(self, input_tensor, depth_tensor,template_tensor, event_points=None):
         """
         input_tensor: [B, 4, 128, 128] (RGB+MTS)
         depth_tensor: [B, 1, 128, 128]
@@ -231,8 +245,20 @@ class GMGPVNet(nn.Module):
         f_rgb_l1, f_rgb_l3 = self.backbone_rgb.forward_features(rgb_crop)
         f_geo_l1, f_geo_l3 = self.backbone_geo.forward_features(geo_input)
         
-        # 3. Gated Fusion (在深层特征上融合)
-        f_2d = self.fusion(f_rgb_l3, f_geo_l3)
+        # [新增] 提取 Template 特征
+        # Template 我们只需要深层特征 (语义信息)
+        _, f_tpl_l3 = self.backbone_template.forward_features(template_tensor) # [B, 128, 64, 64]
+        
+        # [新增] Template 特征融合 (Global Average Pooling -> Expand -> Concat)
+        # 将模板压缩成一个全局向量 [B, 128, 1, 1]
+        f_tpl_global = F.adaptive_avg_pool2d(f_tpl_l3, 1)
+        # 扩展到和 Search 特征图一样大 [B, 128, 64, 64]
+        f_tpl_expanded = f_tpl_global.expand_as(f_rgb_l3)
+        # 拼接到 RGB 特征上
+        f_rgb_enhanced = self.template_fusion(torch.cat([f_rgb_l3, f_tpl_expanded], dim=1))
+        
+        # 3. Gated Fusion (使用增强后的 RGB 特征)
+        f_2d = self.fusion(f_rgb_enhanced, f_geo_l3)
         
         # 4. AFDM 特征扩散 (如果有点云)
         if event_points is not None:
