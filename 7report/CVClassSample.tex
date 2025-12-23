@@ -1,0 +1,250 @@
+%!TEX encoding = UTF-8 Unicode
+
+%---------------------------------------------------------------%
+%  使用XeLaTex编译
+%  参考文献的排版，请创建 .bib 文件， 并使用 BibTex 或者 Biber(有中文参考文献时) 进行排版。
+%---------------------------------------------------------------%
+
+%===============================================================%
+%  固定模板，请不要修改这一部分
+
+\documentclass[a4paper,11pt,onecolumn,UTF8]{article}
+\usepackage{CVClassTemplate}  
+\usepackage{booktabs}  % 用于 \toprule, \midrule, \bottomrule
+\usepackage{array}     % 表格格式支持                                
+\setmainfont{Times New Roman}                      
+
+\newcommand{\mysecondauthor}{null}
+\newcommand{\mythirdauthor}{null} 
+\newcommand{\myfourthauthor}{null}
+\newcommand{\myfifthauthor}{null}
+%===============================================================%
+
+
+%===============================================================%
+% ** 请从这里开始你的编辑 **
+
+%---------------------------------------------------------------%
+%  基本信息配置
+%---------------------------------------------------------------%
+\newcommand{\mytitle}          % 请输入论文题目
+{面向复杂环境与高速运动场景的事件驱动6D物体姿态估计}
+
+\newcommand{\myfirstauthor}        % 请输入作者姓名
+{\kaishu 南晓璐}
+
+\newcommand{\myfirstaffiliation}   % 请输入作者单位
+{\small 清华大学航天航空学院}
+
+\newcommand{\myfirstemail}         % 请输入作者电子邮箱
+{\small nxl25@mails.tsinghua.edu.cn}
+
+\renewcommand{\mysecondauthor}{\kaishu 许嘉杰}    % 若有两名作者取消该行注释
+\newcommand{\mysecondaffiliation}{\small 清华大学航天航空学院}
+\newcommand{\mysecondemail}{\small xujiajie25@mails.tsinghua.edu.cn}
+
+%\renewcommand{\mythirdauthor}{\kaishu 第三作者}    % 若有三名作者取消该行注释
+\newcommand{\mythirdaffiliation}{\small 单位3}
+\newcommand{\mythirdemail}{\small xxxx@xxxx.xxx}
+
+%---------------------------------------------------------------%
+%  摘要 & 关键词
+%---------------------------------------------------------------%
+\newcommand{\myabstract}       % 请在下面输入中文摘要
+{
+    在太空非合作目标抓取、高速工业流水线等极端视觉场景中，传统视觉方法面临巨大挑战。RGB相机在强光直射下易过曝，在高速相对运动下产生运动模糊，导致6D姿态估计失效作为神经形态传感器，事件相机异步记录亮度变化，并将这些变化以稀疏事件流的形式呈现，具有高时间分辨率和高动态范围的优势。为了解决这一问题，本文提出了一种融合事件相机数据的几何引导多模态网络 —— \textbf{GMG-PVNet}。
+
+    该方法包含三个核心创新：(1) 引入 \textbf{MTS (Motion-Texture Surface)} 表征，将高频事件流转化为纹理特征，捕捉不受光照影响的运动边缘；(2) 设计 \textbf{AFDM (Attentive Feature Diffusion Module)}，利用稀疏的事件点云引导密集图像特征的增强，解决了稀疏-密集模态融合的难题；(3) 提出 \textbf{Gated Fusion} 机制，自适应地融合纹理与几何特征。实验结果表明，该方法在YCB-Video数据集的单物体模型上实现了超过90\%的ADD-S精度，在多物体复杂场景下，针对对称物体仍保持了鲁棒的几何对齐能力，证明了事件驱动视觉在极端条件下的有效性。
+}
+
+\newcommand{\mykeywords}        % 请在下面输入中文关键词，以中文分号分隔
+{
+    6D姿态估计；事件相机；多模态融合；AFDM；MTS
+}
+
+%---------------------------------------------------------------%
+%  预置宏包和自定义命令(你可以补充需要的宏包和自定义命令)
+%---------------------------------------------------------------%
+\usepackage[pdfborder=0,CJKbookmarks=true]{hyperref}  % 使用内部超链接，其中第二个选项用于支持中文书签
+\hypersetup{
+    hidelinks=true,
+}
+%改变颜色
+
+\addbibresource{example.bib}				% 填入参考文献库文件.bib
+
+%===============================================================%
+%  打印标题页信息，请不要修改这一部分
+\begin{document}
+\printtitlepage
+%===============================================================%
+
+%---------------------------------------------------------------%
+%  正文内容从这里开始
+%---------------------------------------------------------------%
+\section{引言}
+\subsection{研究背景与挑战}
+随着机器人技术向太空探索和高速自动化领域延伸，视觉系统的工作环境变得日益严苛。例如，在太空碎片清理任务中，目标物体通常处于极端的明暗变化中（一面被太阳直射过曝，一面全黑）；在高速机械臂抓取任务中，rgb相机快速运动会导致成像模糊。
+
+传统的6D姿态估计方法（如PoseCNN~\parencite{xiang2017posecnn}, PVNet~\parencite{peng2019pvnet}）主要依赖RGB图像的纹理特征，在上述场景下极易失效。虽然RGB-D方法（如DenseFusion~\parencite{wang2019densefusion}）引入了深度信息，但在物体边缘处，深度传感器常产生跳变噪声，且无法提供高频的运动信息。
+
+\textbf{事件相机 (Event Camera)} 作为一种生物启发式传感器，具有微秒级的时间分辨率和极高的动态范围（HDR）。它仅记录亮度的变化，天然对运动边缘敏感，且不受运动模糊影响。这为解决极端场景下的姿态估计问题提供了新的契机。
+\subsection{本文贡献}
+为了充分利用事件相机的优势，本文提出了GMG-PVNet，主要贡献如下：
+\begin{enumerate}
+    \item \textbf{数据表示创新：MTS (Motion-Texture Surface)}。我们将时间维度的异步事件流编码为空间纹理，生成MTS图像。这不仅保留了高频运动信息，还解决了传统CNN无法直接处理异步数据的难题。
+    \item \textbf{架构创新：AFDM模块}。针对3D事件点云（稀疏）与2D图像特征（密集）难以对齐的问题，我们提出了“注意力特征扩散模块”。它利用PointNet提取的全局几何特征作为“锚点”，通过注意力机制激活2D特征图的边缘响应。
+    \item \textbf{融合机制：自适应门控融合}。设计了Gated Fusion模块，使网络能够根据输入质量（如RGB是否模糊），自适应地加权纹理特征与几何特征。
+\end{enumerate}
+
+\section{相关工作}
+
+\subsection{6D物体姿态估计}
+6D物体姿态估计旨在从图像中恢复物体的三维位置和旋转。基于RGB的方法通常通过回归2D关键点并利用PnP算法求解姿态，如PVNet~\parencite{peng2019pvnet}提出的像素级投票网络，显著提升了遮挡下的鲁棒性。基于RGB-D的方法如DenseFusion~\parencite{wang2019densefusion}，通过像素级融合RGB和深度特征，在纹理弱的物体上表现更好。然而，这些方法在高速运动或极端光照下，受限于传感器的物理特性，往往难以提取有效的特征。
+
+\subsection{基于事件视觉的应用}
+事件相机在光流估计、SLAM和边缘检测等领域已展现出巨大潜力。然而，将其应用于6D物体姿态估计的工作相对较少。现有的方法多是将事件流转换为体素网格（Voxel Grid）或时间面（Time Surface）作为CNN输入，忽略了事件点云本身包含的精细几何结构。
+
+本文尝试结合MTS的纹理优势与原始点云的几何优势，实现更鲁棒的姿态估计。
+
+\section{方法}
+
+GMG-PVNet采用三流（Three-stream）并行架构，分别处理RGB图像、几何信息（Depth + MTS）以及原始事件点云。整体架构如图~\ref{fig:arch}所示。
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.9\linewidth]{fig/framework.png} % 请替换为你的架构图   
+    \caption{GMG-PVNet 整体架构图。包含RGB分支、几何分支（MTS+Depth）和PointNet分支，通过Gated Fusion和AFDM模块进行多模态融合。}
+	\label{fig:arch}
+\end{figure} 
+
+\subsection{多模态数据流}
+
+\subsubsection{RGB Stream}
+使用ResNet-18作为骨干网络，提取物体的颜色和语义纹理特征。这一分支在光照条件良好且物体静止时起主导作用。
+
+\subsubsection{MTS Stream (Motion-Texture Surface)}
+在处理事件相机的数据时，最常用的一种办法是将时空邻域内的事件通过简单方式（例如，通过像素级的事件计数或极性累加）转换为二维图像。事件帧的优势非常明显，主要因为：（i）它们是将陌生的事件流转换为熟悉二维表示的简单方法，该表示包含场景边缘的空间信息（这是自然图像中最具信息量的区域），（ii）它们不仅传递事件存在的信号，也传递事件缺失的信息（同样具有信息价值），（iii）其具有直观的解释（例如边缘图、亮度增量图像），以及（iv）它们是兼容传统计算机视觉的数据结构~\parencite{gallego2020event}。
+但上述方法忽略了事件数据的高时间分辨率特性，导致图像被压缩，丢失了时间分辨率的信息。
+
+因此，为了利用事件相机的高频特性，我们引入MTS表征。利用指数衰减函数，将一段时间 $\Delta t$ 内的事件流 $(x, y, t, p)$ 投影到2D平面。像素亮度 $I(x,y)$ 定义为：
+\begin{equation}
+    I(x, y) = \sum_{e_i \in \mathcal{E}(x,y)} p_i \cdot e^{-(t_{now} - t_i) / \tau}
+\end{equation}
+MTS相当于一个“时域高通滤波器”，自动过滤了静止背景，仅保留物体的运动轮廓。在光照剧烈变化或RGB模糊时，MTS仍能提供清晰的边缘纹理。同时替代传统的单色直方图。不仅解决了运动模糊问题，并为网络提供了显式的运动导数。MTS处理效果如图~\ref{fig:MTScomparison}所示。
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.9\linewidth]{fig/MTScomparison.png} % 请替换为你的架构图   
+    \caption{MTS 处理效果对比图。（a）原始事件帧（b）MTS 图像（c）深度图（d）MTS+Depth 拼接图。}
+	\label{fig:MTScomparison}
+\end{figure} 
+
+
+\subsubsection{Geometry Stream}
+我们将深度图（Depth）与MTS在通道维度拼接，通过共享权重的ResNet提取物体的空间几何特征，如~\ref{fig:guided_6d_convincing_results}所示。
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.9\linewidth]{fig/guided_6d_convincing_results.png}    
+    \caption{融合图。（a）MTS输入图像（b）深度图梯度（c）自适应空间域筛选（d）MTS边缘 （e）融合几何特征（f）深度与MTS融合表示。}
+	\label{fig:guided_6d_convincing_results}
+\end{figure} 
+
+\subsection{AFDM：稀疏点云引导密集特征}
+这是本文的核心创新。为了利用事件数据的微秒级精度，我们不仅使用了MTS图像，在这里还直接加入了原始事件点云。AFDM（Attentive Feature Diffusion Module）旨在解决稀疏点云与密集特征图的融合问题。
+
+\begin{enumerate}
+    \item \textbf{特征提取}：使用轻量级PointNet处理在线采样（Online Sampling）得到的 $N=1024$ 个事件点，提取包含精细时空信息的局部几何特征 $F_{point} \in \mathbb{R}^{N \times C}$。
+    \item \textbf{空间散射 (Spatial Scattering)}：利用事件点的 $(x, y)$ 像素坐标，将PointNet提取的高维特征精准地“散射”回2D特征图的对应位置，形成稀疏特征图 $M_{sparse}$。
+    \item \textbf{注意力扩散 (Attentive Diffusion)}：使用卷积层作为“扩散器”，将这些稀疏的几何特征向周围像素传播，从而“点亮”特征图中的物体边缘。
+\end{enumerate}
+
+\subsection{推理与几何修正}
+
+\subsubsection{RANSAC Voting}
+网络输出像素级向量场，表示每个像素指向物体关键点的单位向量。我们采用RANSAC算法聚类出9个2D关键点（8个角点+1个中心点），有效抵抗遮挡和离群点干扰。
+
+\subsubsection{深度修正 (Depth-Guided Refinement)}
+由于单目PnP对Z轴深度的估计存在尺度漂移，我们引入了几何约束策略。利用网络预测的Mask区域，统计深度图的中位数作为真实的Z轴距离。这是一种有效的传感器融合（Sensor Fusion）手段，显著提升了定位精度。
+
+\section{实验}
+
+\subsection{实验设置}
+我们在YCB-Ev SD数据集上进行了评估。该数据集包含21类物体，是一个用于6DoF目标姿态估计的标准清晰度（SD）分辨率事件相机数据的合成数据集~\parencite{rojtberg2025ycb}。评价指标采用 \textbf{ADD-S}（针对对称/几何形状）和 \textbf{ADD}（针对非对称/纹理）。
+
+\subsection{核心能力验证：单物体高精度实验}
+为了验证模型在理想情况下的性能上限，我们选取了具有代表性的物体（如 \texttt{003\_cracker\_box}）进行独立训练与测试。
+
+结果显示，在单物体实验中，GMG-PVNet实现了超过 \textbf{90\%} 的ADD-S准确率（$<10\%$直径误差）。这证明了在特征专注的情况下，引入事件和几何信息能极高精度地恢复物体的3D结构。MTS提供的强边缘特征使得关键点预测不再“缩成一团”，而是精准分布在物体角点。
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\linewidth]{fig/singleobj.png} % 请替换为你的Loss曲线图
+    \caption{单物体实验结果。GMG-PVNet在单物体场景下实现了超过90\%的ADD-S准确率，证明了事件数据在高精度姿态估计中的有效性。}
+    \label{fig:single_obj_results}
+\end{figure}
+
+\subsection{复杂场景分析：多物体实验}
+我们进一步测试了模型在21类物体混合场景下的泛化能力。表~\ref{tab:multi_obj}展示了部分物体的评估结果。
+
+\begin{table}[htbp]
+    \centering
+    \caption{多物体场景下的评估结果（部分展示）}
+    \label{tab:multi_obj}
+    \begin{tabular}{lccc}
+        \toprule
+        \textbf{Object Type} & \textbf{Metric} & \textbf{Accuracy ($<10\%d$)} & \textbf{Mean Error} \\
+        \midrule
+        \textbf{Symmetric Objects} (e.g., Bowl, Clamp) & \textbf{ADD-S} & \textbf{40\% - 60\%} & \textbf{$< 20$ mm} \\
+        Asymmetric Objects (e.g., Mustard) & ADD & $\sim 10\%$ & $\sim 100$ mm \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\textbf{结果解读：}
+\begin{itemize}
+    \item \textbf{几何定位强：} 在对称物体上，ADD-S分数较高，说明模型成功捕捉到了物体的几何形状和空间位置。
+    \item \textbf{纹理歧义：} 在非对称物体上，ADD分数较低。可视化分析发现，这是由于ResNet-18容量限制及纹理特征被弱化，导致模型出现了180°的旋转歧义（即头尾颠倒），但包围盒的重合度依然很高。
+\end{itemize}
+
+\subsection{消融实验}
+为了验证多模态融合的必要性，我们对比了“纯RGB”与“多模态融合（Ours）”的效果。
+
+\begin{figure}[htbp]
+    \centering
+    % \includegraphics[width=0.8\linewidth]{fig/ablation.pdf} % 请替换为你的Loss曲线图
+    \caption{消融实验对比。引入事件点云后，模型的平均几何误差显著降低。}
+	\label{fig:ablation}
+\end{figure} 
+
+对比结果表明，引入MTS和事件点云后，模型的平均几何误差（Mean ADD Error）显著降低。在定性分析中，当RGB图像因光照较暗导致纹理不清时，纯RGB模型往往无法检测到物体；而GMG-PVNet凭借MTS提供的清晰轮廓，依然能准确框出物体位置。
+
+\subsection{定性结果展示}
+图~\ref{fig:vis}展示了模型在复杂场景下的推理结果。绿色框为模型预测的3D包围盒。可以看出，即使在存在遮挡和背景杂波的情况下，模型依然能够准确地定位物体。
+
+\begin{figure}[htbp]
+    \centering
+    % \includegraphics[width=1.0\linewidth]{fig/vis_result.jpg} % 请替换为你的可视化结果图
+    \caption{GMG-PVNet 在YCB-Video数据集上的定性结果。绿色框为预测结果，蓝色框为真值。}
+	\label{fig:vis}
+\end{figure} 
+
+\section{总结与未来展望}
+
+本文针对极端光照和高速运动场景，提出了一种基于事件相机的6D姿态估计网络GMG-PVNet。通过MTS表征和AFDM模块，我们成功地将高频事件信息融合进姿态估计流程。
+
+\textbf{主要结论：} (1) 事件数据有效性：MTS和事件点云显著增强了模型对物体边缘的感知能力，特别是在几何定位精度上表现优异。(2) 鲁棒性：通过深度修正和动态掩码策略，模型在复杂背景下展现了极强的抗干扰能力。
+
+\textbf{局限与展望：} 目前模型在多物体分类和纹理方向识别上仍有提升空间。未来工作将集中在引入更大容量的Backbone以解决纹理混淆问题，并加入基于RGB的Refinement网络以消除旋转歧义。
+
+
+%---------------------------------------------------------------%
+%  参考文献
+%---------------------------------------------------------------%
+\printbibliography
+
+%===============================================================%
+
+\end{document}
