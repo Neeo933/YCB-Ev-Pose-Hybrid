@@ -106,23 +106,19 @@
 事件相机在光流估计、SLAM和边缘检测等领域，以及自动驾驶、飞行器高速避障领域已展现出巨大潜力~\parencite{gehrig2021dsec}。然而，将其应用于6D物体姿态估计的工作相对较少。现有的方法多是将事件流转换为体素网格（Voxel Grid）~\parencite{annamalai2022event}或时间面（Time Surface）~\parencite{sekikawa2019eventnet}作为CNN输入，忽略了事件点云本身包含的精细几何结构。
 
 本文尝试结合MTS的纹理优势与原始点云的几何优势，实现更鲁棒的姿态估计。
-
 \section{方法}
-
 GMG-PVNet采用三流（Three-stream）并行架构，分别处理RGB图像、几何信息（Depth + MTS）以及原始事件点云。整体架构如图~\ref{fig:arch}所示。
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.9\linewidth]{fig/framework.png} % 请替换为你的架构图   
+    \includegraphics[width=0.5\linewidth]{fig/framework.png} % 请替换为你的架构图   
     \caption{GMG-PVNet 整体架构图。包含RGB分支、几何分支（MTS+Depth）和PointNet分支，通过Gated Fusion和AFDM模块进行多模态融合。}
 	\label{fig:arch}
 \end{figure} 
 
 \subsection{多模态数据流}
-
 \subsubsection{RGB Stream}
 使用ResNet-18作为骨干网络，提取物体的颜色和语义纹理特征。这一分支在光照条件良好且物体静止时起主导作用。由于数据集的限制，此处我们未引入高速运动场景下RGB图像的模糊处理。用静止状态下的清晰场景作为输入。
-
 \subsubsection{MTS Stream (Motion-Texture Surface)}
 在处理事件相机的数据时，学术界最常用的一种办法是将时空邻域内的事件通过简单方式（例如，通过像素级的事件计数或极性累加）转换为二维图像，这种方法的优势在于（i）它们是将陌生的事件流转换为熟悉二维表示的简单方法，该表示包含场景边缘的空间信息（这是自然图像中最具信息量的区域），（ii）它们不仅传递事件存在的信号，也传递事件缺失的信息（同样具有信息价值），（iii）其具有直观的解释（例如边缘图、亮度增量图像），以及（iv）它们是兼容传统计算机视觉的数据结构~\parencite{gallego2020event}。
 但上述方法忽略了事件数据的高时间分辨率特性，且存在时域混叠问题，导致图像被压缩时丢失了时间分辨率的信息，造成对事件相机优势的利用不足。
@@ -174,7 +170,6 @@ MTS相当于一个“时域高通滤波器”，自动过滤了静止背景，�
     \caption{MTS纹理增强效果展示(1)原始色彩-时域编码表征，显示出初步的运动轮廓；(2)深度图梯度，表现出边缘模糊及脊线丢失问题；(3)自适应空间门控，用于去噪背景纹理；(4)细化后的 MTS 边缘，消除了重影（Ghosting）并增强了清晰度；(5)几何补全，绿色代表深度边缘，蓝色代表 MTS 内部边缘，两者实现互补；(6)最终生成的引导表征，具备丰富的几何与运动细节，可作为通道直接输入姿态估计网络。}
 	\label{fig:guided_6d_convincing_results}
 \end{figure} 
-
 在预处理过程中，我们通过共享权重的ResNet提取物体的空间几何特征。
 \begin{itemize}
     \item \textbf{输入融合：} 将 2D 运动纹理表面（MTS）与深度图（Depth）在通道维度进行拼接（Concatenation）。
@@ -183,10 +178,8 @@ MTS相当于一个“时域高通滤波器”，自动过滤了静止背景，�
 \subsubsection{事件点云分支 (Event Point Cloud Branch)}
 为了充分利用事件相机的超高时间分辨率，本文引入了点云处理分支。通过多层感知机（MLP）和全局最大池化（Global Max Pooling）操作，将离散的异步事件转化为全局几何描述子 $F_{point}$。
 该分支提取的特征将作为后续 AFDM 模块的引导信号，实现跨模态的特征增强。
-
 \subsection{多模态引导与融合}
 为了有效地结合离散的事件点云几何信息与稠密的图像特征，我们提出了注意力特征扩散模块（AFDM）与门控融合方法。
-
 \subsubsection{注意力特征扩散模块 (Attentive Feature Diffusion Module, AFDM)}
 传统的模态融合方法难以处理“稀疏点云”与“稠密图像”之间的空间不一致性。AFDM 模块通过以下机制实现特征增强：
 \begin{itemize}
@@ -201,10 +194,8 @@ MTS相当于一个“时域高通滤波器”，自动过滤了静止背景，�
     F_{fused} = \sigma(G) \cdot F_{rgb}^* + (1 - \sigma(G)) \cdot F_{geo}
 \end{equation}
 其中 $G$ 为通过卷积层学习得到的注意力门控权重。该机制允许模型根据输入质量（如光照强度、模糊程度）动态调整各模态的贡献度：在纹理丰富的场景下偏重 RGB 信息，而在极端环境下自动切换为以事件几何信息为主导。
-
 \subsection{像素级投票与位姿估计 (Pixel-wise Voting \& Pose Estimation)}
 本阶段将融合后的特征 $F_{fused}$ 转化为最终的物体 6D 位姿。
-
 \subsubsection{多头预测输出 (Multi-head Output)}
 模型末端的预测头（Prediction Head）输出两个并行分支：
 \begin{itemize}
@@ -233,7 +224,7 @@ MTS相当于一个“时域高通滤波器”，自动过滤了静止背景，�
 % --- 建议插入的对比图片结构 ---
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.8\textwidth]{fig/epoch030.png} % 请替换为您的图片路径
+    \includegraphics[width=0.9\textwidth]{fig/epoch030.png} % 请替换为您的图片路径
     \caption{GMG-PVNet 训练过程可视化对比。第一行为 Epoch 5 结果，展示了初步的定位但边缘伴随噪声；第二行为 Epoch 30 结果，展示了平滑的掩码与高一致性的向量场。}
     \label{fig:training_evolution}
 \end{figure}
@@ -319,15 +310,14 @@ MTS相当于一个“时域高通滤波器”，自动过滤了静止背景，�
 \end{itemize}
 
 \textbf{结果解读：}
-\begin{itemize}
-    \item \textbf{几何定位强：} 在对称物体上，ADD-S分数较高，说明模型成功捕捉到了物体的几何形状和空间位置。
-    \item \textbf{纹理歧义：} 在非对称物体上，ADD分数较低。可视化分析发现，这是由于ResNet-18容量限制及纹理特征被弱化，导致模型出现了180°的旋转歧义（即头尾颠倒），但包围盒的重合度依然很高。
-\end{itemize}
+
+\textbf{几何定位强：} 在对称物体上，ADD-S分数较高，说明模型成功捕捉到了物体的几何形状和空间位置。
+\textbf{纹理歧义：} 在非对称物体上，ADD分数较低。可视化分析发现，这是由于ResNet-18容量限制及纹理特征被弱化，导致模型出现了180°的旋转歧义（即头尾颠倒），但包围盒的重合度依然很高。
 
 \subsection{消融实验与性能分析}
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.6\linewidth]{fig/ablation_experiment.png} % 请替换为你的Loss曲线图
+    \includegraphics[width=0.8\linewidth]{fig/ablation_experiment.png} % 请替换为你的Loss曲线图
     \caption{消融实验对比。引入事件点云后，模型的平均几何误差显著降低。}
 	\label{fig:ablation}
 \end{figure} 
@@ -381,7 +371,13 @@ MTS相当于一个“时域高通滤波器”，自动过滤了静止背景，�
 
 \textbf{局限与展望：} 目前模型在多物体分类和纹理方向识别上仍有提升空间。未来工作将集中在引入更大容量的Backbone以解决纹理混淆问题，并加入基于RGB的Refinement网络以消除旋转歧义。
 
+\section*{作者分工}
 
+本文的工作由两名作者共同完成，具体分工如下：
+
+\textbf{许嘉杰} 负责了研究工作的总体构思与核心算法设计。具体贡献包括：(1) 提出了基于事件相机的多模态融合框架 GMG-PVNet；(2) 设计了注意力特征扩散模块 (AFDM) 与门控融合机制 (Gated Fusion)，解决了稀疏点云与密集图像特征的对齐问题；(3) 搭建了模型的主干网络与训练流水线，并设计了课程学习策略；(4) 撰写了论文的主体内容。
+
+\textbf{南晓璐} 负责了数据工程、实验验证与可视化分析。具体贡献包括：(1) 搭建了 YCB-Ev 数据集的预处理流水线，实现了 MTS 图像生成与标签投影；(2) 编写了 PyTorch 数据集接口，实现了基于 Otsu 的动态掩码生成与在线点云采样逻辑；(3) 开发了推理评估脚本 (Benchmark)，实现了 RANSAC 投票与深度修正算法；(4) 完成了消融实验的数据收集、图表绘制及论文的润色工作。
 %---------------------------------------------------------------%
 %  参考文献
 %---------------------------------------------------------------%
