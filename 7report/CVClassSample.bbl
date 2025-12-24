@@ -1,0 +1,404 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 3.3 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated by
+% biber as required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+
+\refsection{0}
+  \datalist[entry]{nyt/global//global/global/global}
+    \entry{annamalai2022event}{article}{}{}
+      \name{author}{3}{}{%
+        {{hash=981699ef7d48398fd5441e1804c5a581}{%
+           family={Annamalai},
+           familyi={A\bibinitperiod},
+           given={Lakshmi},
+           giveni={L\bibinitperiod}}}%
+        {{hash=98b5373cace5e2cae4451d8e1ab0f2a6}{%
+           family={Ramanathan},
+           familyi={R\bibinitperiod},
+           given={Vignesh},
+           giveni={V\bibinitperiod}}}%
+        {{hash=a4fe3df83103f9cd695637f024122182}{%
+           family={Thakur},
+           familyi={T\bibinitperiod},
+           given={Chetan\bibnamedelima Singh},
+           giveni={C\bibinitperiod\bibinitdelim S\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {IEEE}%
+      }
+      \strng{namehash}{664ac1d32830ced9a62c576a2bb4bbb2}
+      \strng{fullhash}{664ac1d32830ced9a62c576a2bb4bbb2}
+      \strng{fullhashraw}{664ac1d32830ced9a62c576a2bb4bbb2}
+      \strng{bibnamehash}{664ac1d32830ced9a62c576a2bb4bbb2}
+      \strng{authorbibnamehash}{664ac1d32830ced9a62c576a2bb4bbb2}
+      \strng{authornamehash}{664ac1d32830ced9a62c576a2bb4bbb2}
+      \strng{authorfullhash}{664ac1d32830ced9a62c576a2bb4bbb2}
+      \strng{authorfullhashraw}{664ac1d32830ced9a62c576a2bb4bbb2}
+      \field{sortinit}{A}
+      \field{sortinithash}{2f401846e2029bad6b3ecc16d50031e2}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{IEEE Robotics and Automation Letters}
+      \field{number}{2}
+      \field{title}{Event-LSTM: An unsupervised and asynchronous learning-based representation for event-based data}
+      \field{userf}{en}
+      \field{volume}{7}
+      \field{year}{2022}
+      \field{pages}{4678\bibrangedash 4685}
+      \range{pages}{8}
+    \endentry
+    \entry{gallego2020event}{article}{}{}
+      \true{moreauthor}
+      \true{morelabelname}
+      \name{author}{10}{}{%
+        {{hash=253706c922e85eb9b42b65fad6bfea0d}{%
+           family={Gallego},
+           familyi={G\bibinitperiod},
+           given={Guillermo},
+           giveni={G\bibinitperiod}}}%
+        {{hash=485d396c71e5a4ace4dcfbfe5437e252}{%
+           family={Delbruck},
+           familyi={D\bibinitperiod},
+           given={Tobi},
+           giveni={T\bibinitperiod}}}%
+        {{hash=b536c644f9f5c649d46acbc1d285585d}{%
+           family={Orchard},
+           familyi={O\bibinitperiod},
+           given={Garrick},
+           giveni={G\bibinitperiod}}}%
+        {{hash=a1d37c0ea16f3135d5cc29fe26f5111d}{%
+           family={Bartolozzi},
+           familyi={B\bibinitperiod},
+           given={Chiara},
+           giveni={C\bibinitperiod}}}%
+        {{hash=0371f06893bf850734fe2883007d2764}{%
+           family={Taba},
+           familyi={T\bibinitperiod},
+           given={Brian},
+           giveni={B\bibinitperiod}}}%
+        {{hash=107bb5e3e8936f7821b7f89b0052dba9}{%
+           family={Censi},
+           familyi={C\bibinitperiod},
+           given={Andrea},
+           giveni={A\bibinitperiod}}}%
+        {{hash=25564f7f36f46be27f7326210cc5c2ad}{%
+           family={Leutenegger},
+           familyi={L\bibinitperiod},
+           given={Stefan},
+           giveni={S\bibinitperiod}}}%
+        {{hash=6800da0b1eba1591ea0c413f8efceae3}{%
+           family={Davison},
+           familyi={D\bibinitperiod},
+           given={Andrew\bibnamedelima J},
+           giveni={A\bibinitperiod\bibinitdelim J\bibinitperiod}}}%
+        {{hash=e5579ba5bb689ff3492b12a9d450d9cb}{%
+           family={Conradt},
+           familyi={C\bibinitperiod},
+           given={Jörg},
+           giveni={J\bibinitperiod}}}%
+        {{hash=26789faf98e6ba54553cd620a8da71b2}{%
+           family={Daniilidis},
+           familyi={D\bibinitperiod},
+           given={Kostas},
+           giveni={K\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {IEEE}%
+      }
+      \strng{namehash}{65c0e6f54f3c2a6486476ac3f276be79}
+      \strng{fullhash}{866ac94156920aaee238a00daf4bc8c8}
+      \strng{fullhashraw}{866ac94156920aaee238a00daf4bc8c8}
+      \strng{bibnamehash}{866ac94156920aaee238a00daf4bc8c8}
+      \strng{authorbibnamehash}{866ac94156920aaee238a00daf4bc8c8}
+      \strng{authornamehash}{65c0e6f54f3c2a6486476ac3f276be79}
+      \strng{authorfullhash}{866ac94156920aaee238a00daf4bc8c8}
+      \strng{authorfullhashraw}{866ac94156920aaee238a00daf4bc8c8}
+      \field{sortinit}{G}
+      \field{sortinithash}{32d67eca0634bf53703493fb1090a2e8}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{IEEE transactions on pattern analysis and machine intelligence}
+      \field{number}{1}
+      \field{title}{Event-based vision: A survey}
+      \field{userf}{en}
+      \field{volume}{44}
+      \field{year}{2020}
+      \field{pages}{154\bibrangedash 180}
+      \range{pages}{27}
+    \endentry
+    \entry{gehrig2021dsec}{article}{}{}
+      \name{author}{4}{}{%
+        {{hash=8e86b3f28ff61ff0ac95beb003274a0d}{%
+           family={Gehrig},
+           familyi={G\bibinitperiod},
+           given={Mathias},
+           giveni={M\bibinitperiod}}}%
+        {{hash=56729bf38a0f221f8729c0c98c23f414}{%
+           family={Aarents},
+           familyi={A\bibinitperiod},
+           given={Willem},
+           giveni={W\bibinitperiod}}}%
+        {{hash=822a88bf382fbd8b632e2ac70bd8d469}{%
+           family={Gehrig},
+           familyi={G\bibinitperiod},
+           given={Daniel},
+           giveni={D\bibinitperiod}}}%
+        {{hash=dac21ab4ede215439fcc6b051be53a11}{%
+           family={Scaramuzza},
+           familyi={S\bibinitperiod},
+           given={Davide},
+           giveni={D\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {IEEE}%
+      }
+      \strng{namehash}{e080e4b691c2a56ff3540cb6baf17c4f}
+      \strng{fullhash}{19daecdcf4f7bbe2dbd00b14161d484e}
+      \strng{fullhashraw}{19daecdcf4f7bbe2dbd00b14161d484e}
+      \strng{bibnamehash}{19daecdcf4f7bbe2dbd00b14161d484e}
+      \strng{authorbibnamehash}{19daecdcf4f7bbe2dbd00b14161d484e}
+      \strng{authornamehash}{e080e4b691c2a56ff3540cb6baf17c4f}
+      \strng{authorfullhash}{19daecdcf4f7bbe2dbd00b14161d484e}
+      \strng{authorfullhashraw}{19daecdcf4f7bbe2dbd00b14161d484e}
+      \field{sortinit}{G}
+      \field{sortinithash}{32d67eca0634bf53703493fb1090a2e8}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{IEEE Robotics and Automation Letters}
+      \field{number}{3}
+      \field{title}{Dsec: A stereo event camera dataset for driving scenarios}
+      \field{userf}{en}
+      \field{volume}{6}
+      \field{year}{2021}
+      \field{pages}{4947\bibrangedash 4954}
+      \range{pages}{8}
+    \endentry
+    \entry{peng2019pvnet}{inproceedings}{}{}
+      \name{author}{5}{}{%
+        {{hash=369e0707d779067ef33cd3650d376b11}{%
+           family={Peng},
+           familyi={P\bibinitperiod},
+           given={Sida},
+           giveni={S\bibinitperiod}}}%
+        {{hash=8e34231ba9b9318aa75b42a62d10fba4}{%
+           family={Liu},
+           familyi={L\bibinitperiod},
+           given={Yuan},
+           giveni={Y\bibinitperiod}}}%
+        {{hash=90296b22383e2e87596451120ca7e80b}{%
+           family={Huang},
+           familyi={H\bibinitperiod},
+           given={Qixing},
+           giveni={Q\bibinitperiod}}}%
+        {{hash=be8a2554d7774ac70de3e36b1251df1a}{%
+           family={Zhou},
+           familyi={Z\bibinitperiod},
+           given={Xiaowei},
+           giveni={X\bibinitperiod}}}%
+        {{hash=c384a68d4495c23c2753e5bbbad04be0}{%
+           family={Bao},
+           familyi={B\bibinitperiod},
+           given={Hujun},
+           giveni={H\bibinitperiod}}}%
+      }
+      \strng{namehash}{d4ef2548433d417ed0a08049928b3fc1}
+      \strng{fullhash}{c0f78df5c6f545f5ddcabc030b3c2305}
+      \strng{fullhashraw}{c0f78df5c6f545f5ddcabc030b3c2305}
+      \strng{bibnamehash}{c0f78df5c6f545f5ddcabc030b3c2305}
+      \strng{authorbibnamehash}{c0f78df5c6f545f5ddcabc030b3c2305}
+      \strng{authornamehash}{d4ef2548433d417ed0a08049928b3fc1}
+      \strng{authorfullhash}{c0f78df5c6f545f5ddcabc030b3c2305}
+      \strng{authorfullhashraw}{c0f78df5c6f545f5ddcabc030b3c2305}
+      \field{sortinit}{P}
+      \field{sortinithash}{ff3bcf24f47321b42cb156c2cc8a8422}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition}
+      \field{title}{Pvnet: Pixel-wise voting network for 6d pose estimation}
+      \field{userf}{en}
+      \field{year}{2019}
+      \field{pages}{4561\bibrangedash 4570}
+      \range{pages}{10}
+    \endentry
+    \entry{rojtberg2025ycb}{article}{}{}
+      \name{author}{2}{}{%
+        {{hash=174c7fb591e4918167451eea3a31896c}{%
+           family={Rojtberg},
+           familyi={R\bibinitperiod},
+           given={Pavel},
+           giveni={P\bibinitperiod}}}%
+        {{hash=719db90f01b2482ca30d4c34bf17cfd1}{%
+           family={Kühn},
+           familyi={K\bibinitperiod},
+           given={Julius},
+           giveni={J\bibinitperiod}}}%
+      }
+      \strng{namehash}{756b3c6f84447763d689748d8b9edc15}
+      \strng{fullhash}{756b3c6f84447763d689748d8b9edc15}
+      \strng{fullhashraw}{756b3c6f84447763d689748d8b9edc15}
+      \strng{bibnamehash}{756b3c6f84447763d689748d8b9edc15}
+      \strng{authorbibnamehash}{756b3c6f84447763d689748d8b9edc15}
+      \strng{authornamehash}{756b3c6f84447763d689748d8b9edc15}
+      \strng{authorfullhash}{756b3c6f84447763d689748d8b9edc15}
+      \strng{authorfullhashraw}{756b3c6f84447763d689748d8b9edc15}
+      \field{sortinit}{R}
+      \field{sortinithash}{5e1c39a9d46ffb6bebd8f801023a9486}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{arXiv preprint arXiv:2511.11344}
+      \field{title}{YCB-Ev SD: Synthetic event-vision dataset for 6DoF object pose estimation}
+      \field{userf}{en}
+      \field{year}{2025}
+    \endentry
+    \entry{sekikawa2019eventnet}{inproceedings}{}{}
+      \name{author}{3}{}{%
+        {{hash=b20223426cde23cae6f55148da9c1f72}{%
+           family={Sekikawa},
+           familyi={S\bibinitperiod},
+           given={Yusuke},
+           giveni={Y\bibinitperiod}}}%
+        {{hash=ca9bf5962b2faa94c3499bf17f45a09b}{%
+           family={Hara},
+           familyi={H\bibinitperiod},
+           given={Kosuke},
+           giveni={K\bibinitperiod}}}%
+        {{hash=8761a7c4c4b83509194261bd7f6ee6c3}{%
+           family={Saito},
+           familyi={S\bibinitperiod},
+           given={Hideo},
+           giveni={H\bibinitperiod}}}%
+      }
+      \strng{namehash}{b85ab782f5780675fb9eee90d0664498}
+      \strng{fullhash}{b85ab782f5780675fb9eee90d0664498}
+      \strng{fullhashraw}{b85ab782f5780675fb9eee90d0664498}
+      \strng{bibnamehash}{b85ab782f5780675fb9eee90d0664498}
+      \strng{authorbibnamehash}{b85ab782f5780675fb9eee90d0664498}
+      \strng{authornamehash}{b85ab782f5780675fb9eee90d0664498}
+      \strng{authorfullhash}{b85ab782f5780675fb9eee90d0664498}
+      \strng{authorfullhashraw}{b85ab782f5780675fb9eee90d0664498}
+      \field{sortinit}{S}
+      \field{sortinithash}{b164b07b29984b41daf1e85279fbc5ab}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{Proceedings of the IEEE/CVF conference on computer vision and pattern recognition}
+      \field{title}{Eventnet: Asynchronous recursive event processing}
+      \field{userf}{en}
+      \field{year}{2019}
+      \field{pages}{3887\bibrangedash 3896}
+      \range{pages}{10}
+    \endentry
+    \entry{wang2019densefusion}{inproceedings}{}{}
+      \name{author}{7}{}{%
+        {{hash=147b8560865739e558b0631402b38ee6}{%
+           family={Wang},
+           familyi={W\bibinitperiod},
+           given={Chen},
+           giveni={C\bibinitperiod}}}%
+        {{hash=191294de69066c0731087c6eeba7546d}{%
+           family={Xu},
+           familyi={X\bibinitperiod},
+           given={Danfei},
+           giveni={D\bibinitperiod}}}%
+        {{hash=f86434cb0d86ba7eac5b0e3f3236abf0}{%
+           family={Zhu},
+           familyi={Z\bibinitperiod},
+           given={Yuke},
+           giveni={Y\bibinitperiod}}}%
+        {{hash=0b0d6ea446111a6ef3c02abd2e3d815f}{%
+           family={Martín-Martin},
+           familyi={M\bibinithyphendelim M\bibinitperiod},
+           given={Roberto},
+           giveni={R\bibinitperiod}}}%
+        {{hash=0c7325e4c4968d1bba992545190bee4f}{%
+           family={Lu},
+           familyi={L\bibinitperiod},
+           given={Cewu},
+           giveni={C\bibinitperiod}}}%
+        {{hash=cd00ce5bc45f687c432e52e0fa1a7aa6}{%
+           family={Fei-Fei},
+           familyi={F\bibinithyphendelim F\bibinitperiod},
+           given={Li},
+           giveni={L\bibinitperiod}}}%
+        {{hash=e29c20003a517abaaac28852301c03c2}{%
+           family={Savarese},
+           familyi={S\bibinitperiod},
+           given={Silvio},
+           giveni={S\bibinitperiod}}}%
+      }
+      \strng{namehash}{3378da0ffdb86443690f76803f4fb1ea}
+      \strng{fullhash}{3549ba2d01852d01ceeb2f62c568ebe7}
+      \strng{fullhashraw}{3549ba2d01852d01ceeb2f62c568ebe7}
+      \strng{bibnamehash}{3549ba2d01852d01ceeb2f62c568ebe7}
+      \strng{authorbibnamehash}{3549ba2d01852d01ceeb2f62c568ebe7}
+      \strng{authornamehash}{3378da0ffdb86443690f76803f4fb1ea}
+      \strng{authorfullhash}{3549ba2d01852d01ceeb2f62c568ebe7}
+      \strng{authorfullhashraw}{3549ba2d01852d01ceeb2f62c568ebe7}
+      \field{sortinit}{W}
+      \field{sortinithash}{4315d78024d0cea9b57a0c6f0e35ed0d}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition}
+      \field{title}{Densefusion: 6d object pose estimation by iterative dense fusion}
+      \field{userf}{en}
+      \field{year}{2019}
+      \field{pages}{3343\bibrangedash 3352}
+      \range{pages}{10}
+    \endentry
+    \entry{xiang2017posecnn}{inproceedings}{}{}
+      \name{author}{4}{}{%
+        {{hash=b6d88cfa6a67661781a7484464da5934}{%
+           family={Xiang},
+           familyi={X\bibinitperiod},
+           given={Yu},
+           giveni={Y\bibinitperiod}}}%
+        {{hash=62929a68a8d4048d15a0bc4486d30ca0}{%
+           family={Schmidt},
+           familyi={S\bibinitperiod},
+           given={Tanner},
+           giveni={T\bibinitperiod}}}%
+        {{hash=2beac175a8d9399f81127038ca7e1585}{%
+           family={Narayanan},
+           familyi={N\bibinitperiod},
+           given={Venkatraman},
+           giveni={V\bibinitperiod}}}%
+        {{hash=93b0c4a7857a82a8f94e256475887c74}{%
+           family={Fox},
+           familyi={F\bibinitperiod},
+           given={Dieter},
+           giveni={D\bibinitperiod}}}%
+      }
+      \strng{namehash}{d57e28173d2202107e12a9c3d7f686b8}
+      \strng{fullhash}{597e960d40ca0b9122891629e98515af}
+      \strng{fullhashraw}{597e960d40ca0b9122891629e98515af}
+      \strng{bibnamehash}{597e960d40ca0b9122891629e98515af}
+      \strng{authorbibnamehash}{597e960d40ca0b9122891629e98515af}
+      \strng{authornamehash}{d57e28173d2202107e12a9c3d7f686b8}
+      \strng{authorfullhash}{597e960d40ca0b9122891629e98515af}
+      \strng{authorfullhashraw}{597e960d40ca0b9122891629e98515af}
+      \field{sortinit}{X}
+      \field{sortinithash}{1965c258adceecf23ce3d67b05113442}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{Robotics: Science and Systems (RSS)}
+      \field{title}{Posecnn: A convolutional neural network for 6d object pose estimation in cluttered scenes}
+      \field{userf}{en}
+      \field{year}{2018}
+    \endentry
+  \enddatalist
+\endrefsection
+\endinput
+
