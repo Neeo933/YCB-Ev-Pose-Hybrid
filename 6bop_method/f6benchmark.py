@@ -56,6 +56,7 @@ class Visualizer:
                 cv2.line(img, tuple(img_pts[s]), tuple(img_pts[e]), color, thickness, cv2.LINE_AA)
         return img
 
+    #6D 姿态估计的可视化验证，让你直观看到模型预测的物体在 3D 空间中的位置和方向是否正确。
     def draw_axes(self, img, rvec, tvec, length=50):
         """画 RGB 坐标轴 (红X, 绿Y, 蓝Z)"""
         center_3d = np.array([[0,0,0]], dtype=np.float32)
