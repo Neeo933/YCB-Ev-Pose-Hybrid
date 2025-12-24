@@ -21,7 +21,7 @@ class GMGPoseDataset(Dataset):
     def _get_random_template(self, obj_id, scene_id):
         """
         随机获取一张该物体的模板图。
-        策略：
+        按照以下策略进行：
         1. 优先取同一场景(scene_id)下的模板（如果有），这叫 "Intra-sequence"
         2. 如果没有，就取该 obj_id 下的任意一张，这叫 "General"
         """
