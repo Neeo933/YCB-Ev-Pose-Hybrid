@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999997 (TeX Live 2025) (preloaded format=xelatex 2025.11.26)  23 DEC 2025 22:42
+This is XeTeX, Version 3.141592653-2.6-0.999997 (TeX Live 2025) (preloaded format=xelatex 2025.11.26)  24 DEC 2025 10:22
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1092,14 +1092,22 @@ Overfull \hbox (9.6566pt too wide) in paragraph at lines 177--178
 File: fig/singleobj.png Graphic file (type bmp)
 <fig/singleobj.png>
 
+LaTeX Warning: Reference `tab:multi_obj_full' on page 5 undefined on input line 191.
+
+
+LaTeX Warning: Reference `tab:multi_obj_full' on page 5 undefined on input line 226.
+
+
 
 [5]
 
-LaTeX Warning: Empty bibliography on input line 246.
+[6]
+
+LaTeX Warning: Empty bibliography on input line 279.
 
 
 
-[6] (./CVClassSample.aux)
+[7] (./CVClassSample.aux)
  ***********
 LaTeX2e <2024-11-01> patch level 2
 L3 programming layer <2022/07/14>
@@ -1110,6 +1118,9 @@ LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
 
 LaTeX Warning: There were undefined references.
+
+
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
 
 Package rerunfilecheck Info: File `CVClassSample.out' has not changed.
 (rerunfilecheck)             Checksum: 08667B785019ED256785A5ABD392699B;2704.
@@ -1123,12 +1134,12 @@ Package logreq Info: Writing requests to 'CVClassSample.run.xml'.
 
  ) 
 Here is how much of TeX's memory you used:
- 24103 strings out of 473832
- 513919 string characters out of 5726731
- 1383542 words of memory out of 5000000
- 46825 multiletter control sequences out of 15000+600000
- 567464 words of font info for 117 fonts, out of 8000000 for 9000
+ 24106 strings out of 473832
+ 514038 string characters out of 5726731
+ 1383545 words of memory out of 5000000
+ 46827 multiletter control sequences out of 15000+600000
+ 567472 words of font info for 118 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
  108i,12n,125p,698b,1158s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
-Output written on CVClassSample.pdf (6 pages).
+Output written on CVClassSample.pdf (7 pages).

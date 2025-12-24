@@ -187,28 +187,61 @@ MTS相当于一个“时域高通滤波器”，自动过滤了静止背景，�
 \end{figure}
 
 \subsection{复杂场景分析：多物体实验}
-我们进一步测试了模型在21类物体混合场景下的泛化能力。表~\ref{tab:multi_obj}展示了部分物体的评估结果。
+
+为了全面评估模型在复杂场景下的泛化能力，我们在包含21类物体的YCB-Video数据集上进行了测试。实验评估了模型在不同严格程度下的准确率（Accuracy at threshold $d$）以及平均距离误差（Mean ADD Error）。详细的量化结果如表~\ref{tab:multi_obj_full}所示。
 
 \begin{table}[htbp]
     \centering
-    \caption{多物体场景下的评估结果（部分展示）}
-    \label{tab:multi_obj}
-    \begin{tabular}{lccc}
+    \caption{GMG-PVNet 在YCB-Video数据集上的多物体评估结果。其中 Acc($<k\%d$) 表示预测姿态误差小于物体直径 $k\%$ 的样本比例。}
+    \label{tab:multi_obj_full}
+    \resizebox{\linewidth}{!}{ % 自动缩放表格以适应页面宽度
+    \begin{tabular}{l|l|c|ccc|c}
         \toprule
-        \textbf{Object Type} & \textbf{Metric} & \textbf{Accuracy ($<10\%d$)} & \textbf{Mean Error} \\
+        \textbf{ID} & \textbf{Object Name} & \textbf{Count} & \textbf{Acc ($<10\%d$)} & \textbf{Acc ($<20\%d$)} & \textbf{Acc ($<50\%d$)} & \textbf{Mean Err (mm)} \\
         \midrule
-        \textbf{Symmetric Objects} (e.g., Bowl, Clamp) & \textbf{ADD-S} & \textbf{40\% - 60\%} & \textbf{$< 20$ mm} \\
-        Asymmetric Objects (e.g., Mustard) & ADD & $\sim 10\%$ & $\sim 100$ mm \\
+        \multicolumn{7}{c}{\textit{Symmetric / Geometrically Distinct Objects}} \\
+        \midrule
+        13 & Bowl & 102 & \textbf{39.2\%} & \textbf{95.1\%} & 99.0\% & 20.4 \\
+        20 & Extra Large Clamp & 101 & \textbf{59.4\%} & \textbf{88.1\%} & 100.0\% & 21.0 \\
+        19 & Pitcher Base & 84 & 36.9\% & 73.2\% & 98.8\% & 20.7 \\
+        10 & Banana & 82 & 39.0\% & 87.8\% & 98.8\% & 24.0 \\
+        15 & Power Drill & 111 & 40.5\% & 88.3\% & 99.1\% & 23.5 \\
+        \midrule
+        \multicolumn{7}{c}{\textit{Texture-Dependent / Asymmetric Objects}} \\
+        \midrule
+        01 & Master Chef Can & 114 & 0.0\% & 47.4\% & 99.1\% & 22.5 \\
+        02 & Cracker Box & 124 & 30.6\% & 79.8\% & 97.6\% & 29.2 \\
+        05 & Mustard Bottle & 113 & 0.9\% & 76.1\% & \textbf{100.0\%} & 21.3 \\
+        06 & Tuna Fish Can & 88 & 0.0\% & 65.9\% & 97.7\% & 19.8 \\
+        21 & Foam Brick & 81 & 0.0\% & 82.7\% & 100.0\% & \textbf{17.4} \\
+        \midrule
+        \textbf{Avg} & \textbf{All Classes (Micro)} & \textbf{2000} & \textbf{11.8\%} & \textbf{67.0\%} & \textbf{97.4\%} & \textbf{22.7} \\
         \bottomrule
     \end{tabular}
+    }
 \end{table}
+
+\textbf{结果分析与讨论：}
+
+从表~\ref{tab:multi_obj_full}中可以观察到以下关键现象：
+
+\begin{itemize}
+    \item \textbf{极高的定位鲁棒性 (Localization Robustness)：} 
+    在较为宽松的阈值下（Acc $<50\%d$），模型的平均准确率达到了 \textbf{97.4\%}。这意味着在绝大多数情况下，GMG-PVNet 能够成功检测到物体并将其定位在正确的空间范围内。平均位置误差仅为 \textbf{22.7mm}，这对于机械臂抓取等实际应用场景（通常容忍度在2-3cm）已具备极高的实用价值。
+    
+    \item \textbf{几何特征的主导作用：} 
+    对于具有显著几何特征或对称性的物体（如 \textit{Extra Large Clamp, Bowl, Banana}），模型在严格阈值（$<10\%d$）下表现优异，最高达到了 59.4\%。这有力地证明了引入 \textbf{事件点云 (Point Cloud)} 和 \textbf{AFDM模块} 有效增强了网络对物体 3D 几何结构的感知能力，即使在纹理模糊的情况下也能通过几何边缘锁定姿态。
+    
+    \item \textbf{纹理歧义带来的挑战：} 
+    对于纹理依赖型物体（如 \textit{Master Chef Can, Mustard Bottle}），虽然 Mean Error 很低（约2cm），但严格准确率接近 0\%。可视化分析表明，这是由于 \textbf{旋转歧义} 造成的。例如，圆柱体的罐头在旋转 180 度后几何形状不变，但纹理改变。由于 ResNet-18 的特征容量限制，模型在多物体混训时难以完美区分细微的纹理方向，导致预测姿态出现了翻转，从而被 ADD 指标判定为错误。然而，从几何占位（IoU）的角度来看，预测框依然完美贴合了物体。
+\end{itemize}
 
 \textbf{结果解读：}
 \begin{itemize}
     \item \textbf{几何定位强：} 在对称物体上，ADD-S分数较高，说明模型成功捕捉到了物体的几何形状和空间位置。
     \item \textbf{纹理歧义：} 在非对称物体上，ADD分数较低。可视化分析发现，这是由于ResNet-18容量限制及纹理特征被弱化，导致模型出现了180°的旋转歧义（即头尾颠倒），但包围盒的重合度依然很高。
 \end{itemize}
-
+s
 \subsection{消融实验}
 为了验证多模态融合的必要性，我们对比了“纯RGB”与“多模态融合（Ours）”的效果。
 
