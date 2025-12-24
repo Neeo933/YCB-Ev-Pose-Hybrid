@@ -131,6 +131,7 @@ GMG-PVNet采用三流（Three-stream）并行架构，分别处理RGB图像、�
 \begin{equation}
     I(x, y) = \sum_{e_i \in \mathcal{E}(x,y)} p_i \cdot e^{-(t_{now} - t_i) / \tau}
 \end{equation}
+
 MTS相当于一个“时域高通滤波器”，自动过滤了静止背景，仅保留物体的运动轮廓。在光照剧烈变化或RGB模糊时，MTS仍能提供清晰的边缘纹理。同时替代传统的单色直方图。不仅解决了运动模糊问题，并为网络提供了显式的运动导数。MTS处理效果如图~\ref{fig:MTScomparison}所示。
 
 \begin{figure}[htbp]
@@ -176,15 +177,45 @@ MTS相当于一个“时域高通滤波器”，自动过滤了静止背景，�
 \subsection{核心能力验证：单物体高精度实验}
 为了验证模型在理想情况下的性能上限，我们选取了具有代表性的物体（如 \texttt{003\_cracker\_box}）进行独立训练与测试。
 
+
+\subsubsection{训练演进过程评估 (Evaluation of Training Evolution)}
+
+为了直观验证 GMG-PVNet 对多模态特征的整合能力，本文选取了训练过程中的两个关键阶段进行定性对比分析：训练初期（Epoch 5）与收敛阶段（Epoch 30）。具体对比结果如图 \ref{fig:training_evolution} 所示。
+
+% --- 建议插入的对比图片结构 ---
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.8\textwidth]{fig/epoch030.png} % 请替换为您的图片路径
+    \caption{GMG-PVNet 训练过程可视化对比。第一行为 Epoch 5 结果，展示了初步的定位但边缘伴随噪声；第二行为 Epoch 30 结果，展示了平滑的掩码与高一致性的向量场。}
+    \label{fig:training_evolution}
+\end{figure}
+
+\paragraph{1. 语义分割与目标定位的进化}
+
+\textbf{训练初期 (Epoch 5)：} 可视化结果显示，模型在初期能够初步识别物体的空间位置，但生成的分割掩码（Mask）边缘存在明显的噪声，且对物体精细轮廓的拟合较差。这表明在训练开始阶段，模型正处于建立 RGB 纹理与 MTS 几何边缘关联的初步阶段，对于极端光照下模糊边缘的判别尚不够稳健。
+
+\textbf{收敛阶段 (Epoch 30)：} 随着训练的推进，第 30 轮的可视化图表现出显著的改善。分割掩码变得连续且平滑，紧密贴合目标物体的物理边界。即使在背景复杂或光照剧烈变化的区域，模型也能通过 \textit{Gated Fusion} 模块有效抑制无效噪声，输出干净且准确的语义区域。
+
+\paragraph{2. 向量场 (Vector Field) 的精确度提升}
+
+在关键点预测方面，Epoch 30 的向量场方向表现出高度的收敛性。相比于 Epoch 5 中向量指向较为发散、甚至在物体中心区域出现方向冲突的情况，Epoch 30 的向量场在全图范围内展现出指向关键点的强一致性 (\textit{Consistency})。
+
+这种提升直接得益于 \textit{AFDM (Attentive Feature Diffusion Module)} 的作用。随着训练的进行，模型学会了如何将点云提取的局部几何特征通过扩散机制补偿到图像特征图中，从而在局部细节处修正了由于图像模糊带来的向量预测偏移，显著增强了 RANSAC 投票过程的稳定性。
+
+
+\subsection{单物体实验结果展示}
+
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.9\linewidth]{fig/singleobj.png} % 请替换为你的Loss曲线图
+    \caption{单物体实验结果。GMG-PVNet在单物体场景下实现了超过90\%的ADD-S准确率，证明了事件数据在高精度姿态估计中的有效性。}
+    \label{fig:epoch_030_vis}
+\end{figure}
+
 结果显示，在单物体实验中，GMG-PVNet实现了超过 \textbf{90\%} 的ADD-S准确率（$<10\%$直径误差）。这证明了在特征专注的情况下，引入事件和几何信息能极高精度地恢复物体的3D结构。MTS提供的强边缘特征使得关键点预测不再“缩成一团”，而是精准分布在物体角点。
 
 
-\begin{figure}
-    \centering
-    \includegraphics[width=0.8\linewidth]{fig/singleobj.png} % 请替换为你的Loss曲线图
-    \caption{单物体实验结果。GMG-PVNet在单物体场景下实现了超过90\%的ADD-S准确率，证明了事件数据在高精度姿态估计中的有效性。}
-    \label{fig:single_obj_results}
-\end{figure}
 
 \subsection{复杂场景分析：多物体实验}
 
@@ -241,13 +272,13 @@ MTS相当于一个“时域高通滤波器”，自动过滤了静止背景，�
     \item \textbf{几何定位强：} 在对称物体上，ADD-S分数较高，说明模型成功捕捉到了物体的几何形状和空间位置。
     \item \textbf{纹理歧义：} 在非对称物体上，ADD分数较低。可视化分析发现，这是由于ResNet-18容量限制及纹理特征被弱化，导致模型出现了180°的旋转歧义（即头尾颠倒），但包围盒的重合度依然很高。
 \end{itemize}
-s
+
 \subsection{消融实验}
-为了验证多模态融合的必要性，我们对比了“纯RGB”与“多模态融合（Ours）”的效果。
+为了验证多模态融合的必要性，我们对比了“纯RGB”，“RGB加深度与MTS融合信息”与“多模态融合（Ours）”的效果。
 
 \begin{figure}[htbp]
     \centering
-    % \includegraphics[width=0.8\linewidth]{fig/ablation.pdf} % 请替换为你的Loss曲线图
+    \includegraphics[width=0.8\linewidth]{fig/ablation experiment.png} % 请替换为你的Loss曲线图
     \caption{消融实验对比。引入事件点云后，模型的平均几何误差显著降低。}
 	\label{fig:ablation}
 \end{figure} 

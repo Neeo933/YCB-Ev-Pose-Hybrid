@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999997 (TeX Live 2025) (preloaded format=xelatex 2025.11.26)  24 DEC 2025 10:22
+This is XeTeX, Version 3.141592653-2.6-0.999997 (TeX Live 2025) (preloaded format=xelatex 2025.11.26)  24 DEC 2025 14:34
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1046,7 +1046,7 @@ File: fig/guided_6d_convincing_results.png Graphic file (type bmp)
 
 [3]
 
-LaTeX Warning: Citation 'rojtberg2025ycb' on page 4 undefined on input line 174.
+LaTeX Warning: Citation 'rojtberg2025ycb' on page 4 undefined on input line 175.
 
 
 
@@ -1066,12 +1066,12 @@ Package fontspec Info:
 (fontspec)             Could not resolve font "FangSong/I" (it probably
 (fontspec)             doesn't exist).
 
-LaTeX Font Info:    Trying to load font information for TU+pcr on input line 177.
-LaTeX Font Info:    No file TUpcr.fd. on input line 177.
+LaTeX Font Info:    Trying to load font information for TU+pcr on input line 178.
+LaTeX Font Info:    No file TUpcr.fd. on input line 178.
 
 
 LaTeX Font Warning: Font shape `TU/pcr/m/n' undefined
-(Font)              using `TU/lmr/m/n' instead on input line 177.
+(Font)              using `TU/lmr/m/n' instead on input line 178.
 
 
 Package fontspec Info: 
@@ -1085,29 +1085,33 @@ Package fontspec Info:
 (fontspec)             <->"FangSong/OT:script=hani;language=dflt;"
 
 
-Overfull \hbox (9.6566pt too wide) in paragraph at lines 177--178
+Overfull \hbox (9.6566pt too wide) in paragraph at lines 178--179
 []\TU/SimSun(0)/m/n/10.95 为 了 验 证 模 型 在 理 想 情 况 下 的 性 能 上 限，|  我 们 选 取 了 具 有 代 表 性 的 物 体  |（如 \TU/pcr/m/n/10.95 003_cracker_box\TU/SimSun(0)/m/n/10.95 ）|
  []
 
-File: fig/singleobj.png Graphic file (type bmp)
-<fig/singleobj.png>
-
-LaTeX Warning: Reference `tab:multi_obj_full' on page 5 undefined on input line 191.
-
-
-LaTeX Warning: Reference `tab:multi_obj_full' on page 5 undefined on input line 226.
-
+File: fig/epoch030.png Graphic file (type bmp)
+<fig/epoch030.png>
 
 
 [5]
+File: fig/singleobj.png Graphic file (type bmp)
+<fig/singleobj.png>
+
 
 [6]
 
-LaTeX Warning: Empty bibliography on input line 279.
+[7]
+File: fig/ablation experiment.png Graphic file (type bmp)
+<fig/ablation experiment.png>
+
+
+[8]
+
+LaTeX Warning: Empty bibliography on input line 310.
 
 
 
-[7] (./CVClassSample.aux)
+[9] (./CVClassSample.aux)
  ***********
 LaTeX2e <2024-11-01> patch level 2
 L3 programming layer <2022/07/14>
@@ -1123,7 +1127,7 @@ LaTeX Warning: There were undefined references.
 LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
 
 Package rerunfilecheck Info: File `CVClassSample.out' has not changed.
-(rerunfilecheck)             Checksum: 08667B785019ED256785A5ABD392699B;2704.
+(rerunfilecheck)             Checksum: 54DE29F2380F93A2850F6265EBAA7091;3159.
 
 Package biblatex Warning: Please (re)run Biber on the file:
 (biblatex)                CVClassSample
@@ -1134,12 +1138,12 @@ Package logreq Info: Writing requests to 'CVClassSample.run.xml'.
 
  ) 
 Here is how much of TeX's memory you used:
- 24106 strings out of 473832
- 514038 string characters out of 5726731
- 1383545 words of memory out of 5000000
- 46827 multiletter control sequences out of 15000+600000
+ 24134 strings out of 473832
+ 515123 string characters out of 5726731
+ 1383710 words of memory out of 5000000
+ 46853 multiletter control sequences out of 15000+600000
  567472 words of font info for 118 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
  108i,12n,125p,698b,1158s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
-Output written on CVClassSample.pdf (7 pages).
+Output written on CVClassSample.pdf (9 pages).

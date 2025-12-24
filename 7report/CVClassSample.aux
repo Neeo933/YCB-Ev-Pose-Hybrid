@@ -38,21 +38,27 @@
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.3}推理与几何修正}{4}{subsection.3.3}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {3.3.1}RANSAC Voting}{4}{subsubsection.3.3.1}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {3.3.2}深度修正 (Depth-Guided Refinement)}{4}{subsubsection.3.3.2}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces 单物体实验结果。GMG-PVNet在单物体场景下实现了超过90\%的ADD-S准确率，证明了事件数据在高精度姿态估计中的有效性。}}{5}{figure.4}\protected@file@percent }
-\newlabel{fig:single_obj_results}{{4}{5}{单物体实验结果。GMG-PVNet在单物体场景下实现了超过90\%的ADD-S准确率，证明了事件数据在高精度姿态估计中的有效性。}{figure.4}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {4}实验}{5}{section.4}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.1}实验设置}{5}{subsection.4.1}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.2}核心能力验证：单物体高精度实验}{5}{subsection.4.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}复杂场景分析：多物体实验}{5}{subsection.4.3}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces GMG-PVNet 在YCB-Video数据集上的多物体评估结果。其中 Acc($<k\%d$) 表示预测姿态误差小于物体直径 $k\%$ 的样本比例。}}{6}{table.1}\protected@file@percent }
-\newlabel{tab:multi_obj_full}{{1}{6}{GMG-PVNet 在YCB-Video数据集上的多物体评估结果。其中 Acc($<k\%d$) 表示预测姿态误差小于物体直径 $k\%$ 的样本比例。}{table.1}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}消融实验}{6}{subsection.4.4}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces 消融实验对比。引入事件点云后，模型的平均几何误差显著降低。}}{6}{figure.5}\protected@file@percent }
-\newlabel{fig:ablation}{{5}{6}{消融实验对比。引入事件点云后，模型的平均几何误差显著降低。}{figure.5}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.5}定性结果展示}{7}{subsection.4.5}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces GMG-PVNet 在YCB-Video数据集上的定性结果。绿色框为预测结果，蓝色框为真值。}}{7}{figure.6}\protected@file@percent }
-\newlabel{fig:vis}{{6}{7}{GMG-PVNet 在YCB-Video数据集上的定性结果。绿色框为预测结果，蓝色框为真值。}{figure.6}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {5}总结与未来展望}{7}{section.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.2.1}训练演进过程评估 (Evaluation of Training Evolution)}{5}{subsubsection.4.2.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces GMG-PVNet 训练过程可视化对比。第一行为 Epoch 5 结果，展示了初步的定位但边缘伴随噪声；第二行为 Epoch 30 结果，展示了平滑的掩码与高一致性的向量场。}}{5}{figure.4}\protected@file@percent }
+\newlabel{fig:training_evolution}{{4}{5}{GMG-PVNet 训练过程可视化对比。第一行为 Epoch 5 结果，展示了初步的定位但边缘伴随噪声；第二行为 Epoch 30 结果，展示了平滑的掩码与高一致性的向量场。}{figure.4}{}}
+\@writefile{toc}{\contentsline {paragraph}{1. 语义分割与目标定位的进化}{6}{section*.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{2. 向量场 (Vector Field) 的精确度提升}{6}{section*.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}单物体实验结果展示}{6}{subsection.4.3}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces 单物体实验结果。GMG-PVNet在单物体场景下实现了超过90\%的ADD-S准确率，证明了事件数据在高精度姿态估计中的有效性。}}{6}{figure.5}\protected@file@percent }
+\newlabel{fig:epoch_030_vis}{{5}{6}{单物体实验结果。GMG-PVNet在单物体场景下实现了超过90\%的ADD-S准确率，证明了事件数据在高精度姿态估计中的有效性。}{figure.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}复杂场景分析：多物体实验}{6}{subsection.4.4}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces GMG-PVNet 在YCB-Video数据集上的多物体评估结果。其中 Acc($<k\%d$) 表示预测姿态误差小于物体直径 $k\%$ 的样本比例。}}{7}{table.1}\protected@file@percent }
+\newlabel{tab:multi_obj_full}{{1}{7}{GMG-PVNet 在YCB-Video数据集上的多物体评估结果。其中 Acc($<k\%d$) 表示预测姿态误差小于物体直径 $k\%$ 的样本比例。}{table.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.5}消融实验}{8}{subsection.4.5}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces 消融实验对比。引入事件点云后，模型的平均几何误差显著降低。}}{8}{figure.6}\protected@file@percent }
+\newlabel{fig:ablation}{{6}{8}{消融实验对比。引入事件点云后，模型的平均几何误差显著降低。}{figure.6}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.6}定性结果展示}{9}{subsection.4.6}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces GMG-PVNet 在YCB-Video数据集上的定性结果。绿色框为预测结果，蓝色框为真值。}}{9}{figure.7}\protected@file@percent }
+\newlabel{fig:vis}{{7}{9}{GMG-PVNet 在YCB-Video数据集上的定性结果。绿色框为预测结果，蓝色框为真值。}{figure.7}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5}总结与未来展望}{9}{section.5}\protected@file@percent }
 \abx@aux@read@bbl@mdfivesum{nobblfile}
 \abx@aux@read@bblrerun
-\gdef \@abspage@last{7}
+\gdef \@abspage@last{9}
