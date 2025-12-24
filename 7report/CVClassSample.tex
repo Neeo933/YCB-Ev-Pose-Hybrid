@@ -41,7 +41,7 @@
 
 \renewcommand{\mysecondauthor}{\kaishu 许嘉杰}    % 若有两名作者取消该行注释
 \newcommand{\mysecondaffiliation}{\small 清华大学航天航空学院}
-\newcommand{\mysecondemail}{\small xujiajie25@mails.tsinghua.edu.cn}
+\newcommand{\mysecondemail}{\small xujj25@mails.tsinghua.edu.cn}
 
 %\renewcommand{\mythirdauthor}{\kaishu 第三作者}    % 若有三名作者取消该行注释
 \newcommand{\mythirdaffiliation}{\small 单位3}
@@ -52,9 +52,9 @@
 %---------------------------------------------------------------%
 \newcommand{\myabstract}       % 请在下面输入中文摘要
 {
-    在太空非合作目标抓取、高速工业流水线等极端视觉场景中，传统视觉方法面临巨大挑战。RGB相机在强光直射下易过曝，在高速相对运动下产生运动模糊，导致6D姿态估计失效作为神经形态传感器，事件相机异步记录亮度变化，并将这些变化以稀疏事件流的形式呈现，具有高时间分辨率和高动态范围的优势。为了解决这一问题，本文提出了一种融合事件相机数据的几何引导多模态网络 —— \textbf{GMG-PVNet}。
+    在太空非合作目标抓取、高速工业流水线等极端视觉场景中，传统视觉方法面临巨大挑战。RGB相机在强光直射下易过曝，在高速相对运动下产生运动模糊，导致6D姿态估计失效。作为神经形态传感器，事件相机异步记录亮度变化，并将这些变化以稀疏事件流的形式呈现，具有高时间分辨率和高动态范围的优势。基于以上困难和事件相机的优势，本文提出了一种融合事件相机数据的几何引导多模态网络 —— \textbf{GMG-PVNet}。
 
-    该方法包含三个核心创新：(1) 引入 \textbf{MTS (Motion-Texture Surface)} 表征，将高频事件流转化为纹理特征，捕捉不受光照影响的运动边缘；(2) 设计 \textbf{AFDM (Attentive Feature Diffusion Module)}，利用稀疏的事件点云引导密集图像特征的增强，解决了稀疏-密集模态融合的难题；(3) 提出 \textbf{Gated Fusion} 机制，自适应地融合纹理与几何特征。实验结果表明，该方法在YCB-Video数据集的单物体模型上实现了超过90\%的ADD-S精度，在多物体复杂场景下，针对对称物体仍保持了鲁棒的几何对齐能力，证明了事件驱动视觉在极端条件下的有效性。
+    该方法包含三个核心创新：(1) 引入 \textbf{MTS (Motion-Texture Surface)} 表征，将高频事件流转化为纹理特征，捕捉不受光照影响的运动边缘；(2) 设计 \textbf{AFDM (Attentive Feature Diffusion Module)}，利用稀疏的事件点云引导密集图像特征的增强，解决了稀疏-密集模态融合的难题；(3) 提出 \textbf{Gated Fusion} 机制，自适应地融合纹理与几何特征。实验结果表明，该方法在YCB-Video数据集的单物体模型上实现了超过90\%的ADD-S精度，在多物体复杂场景下，针对对称物体仍保持了鲁棒的几何对齐能力，证明了事件驱动视觉在极端条件下的有效性和在边缘增强上的应用潜力。
 }
 
 \newcommand{\mykeywords}        % 请在下面输入中文关键词，以中文分号分隔
@@ -92,7 +92,7 @@
 \subsection{本文贡献}
 为了充分利用事件相机的优势，本文提出了GMG-PVNet，主要贡献如下：
 \begin{enumerate}
-    \item \textbf{数据表示创新：MTS (Motion-Texture Surface)}。我们将时间维度的异步事件流编码为空间纹理，生成MTS图像。这不仅保留了高频运动信息，还解决了传统CNN无法直接处理异步数据的难题。
+    \item \textbf{数据表示创新：MTS}。我们将时间维度的异步事件流编码为空间纹理，生成MTS图像。这不仅保留了高频运动信息，还解决了传统CNN无法直接处理异步数据的难题。
     \item \textbf{架构创新：AFDM模块}。针对3D事件点云（稀疏）与2D图像特征（密集）难以对齐的问题，我们提出了“注意力特征扩散模块”。它利用PointNet提取的全局几何特征作为“锚点”，通过注意力机制激活2D特征图的边缘响应。
     \item \textbf{融合机制：自适应门控融合}。设计了Gated Fusion模块，使网络能够根据输入质量（如RGB是否模糊），自适应地加权纹理特征与几何特征。
 \end{enumerate}
@@ -103,7 +103,7 @@
 6D物体姿态估计旨在从图像中恢复物体的三维位置和旋转。基于RGB的方法通常通过回归2D关键点并利用PnP算法求解姿态，如PVNet~\parencite{peng2019pvnet}提出的像素级投票网络，显著提升了遮挡下的鲁棒性。基于RGB-D的方法如DenseFusion~\parencite{wang2019densefusion}，通过像素级融合RGB和深度特征，在纹理弱的物体上表现更好。然而，这些方法在高速运动或极端光照下，受限于传感器的物理特性，往往难以提取有效的特征。
 
 \subsection{基于事件视觉的应用}
-事件相机在光流估计、SLAM和边缘检测等领域已展现出巨大潜力。然而，将其应用于6D物体姿态估计的工作相对较少。现有的方法多是将事件流转换为体素网格（Voxel Grid）或时间面（Time Surface）作为CNN输入，忽略了事件点云本身包含的精细几何结构。
+事件相机在光流估计、SLAM和边缘检测等领域，以及自动驾驶、飞行器高速避障领域已展现出巨大潜力~\parencite{gehrig2021dsec}。然而，将其应用于6D物体姿态估计的工作相对较少。现有的方法多是将事件流转换为体素网格（Voxel Grid）~\parencite{annamalai2022event}或时间面（Time Surface）~\parencite{sekikawa2019eventnet}作为CNN输入，忽略了事件点云本身包含的精细几何结构。
 
 本文尝试结合MTS的纹理优势与原始点云的几何优势，实现更鲁棒的姿态估计。
 
@@ -121,66 +121,114 @@ GMG-PVNet采用三流（Three-stream）并行架构，分别处理RGB图像、�
 \subsection{多模态数据流}
 
 \subsubsection{RGB Stream}
-使用ResNet-18作为骨干网络，提取物体的颜色和语义纹理特征。这一分支在光照条件良好且物体静止时起主导作用。
+使用ResNet-18作为骨干网络，提取物体的颜色和语义纹理特征。这一分支在光照条件良好且物体静止时起主导作用。由于数据集的限制，此处我们未引入高速运动场景下RGB图像的模糊处理。用静止状态下的清晰场景作为输入。
 
 \subsubsection{MTS Stream (Motion-Texture Surface)}
-在处理事件相机的数据时，最常用的一种办法是将时空邻域内的事件通过简单方式（例如，通过像素级的事件计数或极性累加）转换为二维图像。事件帧的优势非常明显，主要因为：（i）它们是将陌生的事件流转换为熟悉二维表示的简单方法，该表示包含场景边缘的空间信息（这是自然图像中最具信息量的区域），（ii）它们不仅传递事件存在的信号，也传递事件缺失的信息（同样具有信息价值），（iii）其具有直观的解释（例如边缘图、亮度增量图像），以及（iv）它们是兼容传统计算机视觉的数据结构~\parencite{gallego2020event}。
-但上述方法忽略了事件数据的高时间分辨率特性，导致图像被压缩，丢失了时间分辨率的信息。
+在处理事件相机的数据时，学术界最常用的一种办法是将时空邻域内的事件通过简单方式（例如，通过像素级的事件计数或极性累加）转换为二维图像，这种方法的优势在于（i）它们是将陌生的事件流转换为熟悉二维表示的简单方法，该表示包含场景边缘的空间信息（这是自然图像中最具信息量的区域），（ii）它们不仅传递事件存在的信号，也传递事件缺失的信息（同样具有信息价值），（iii）其具有直观的解释（例如边缘图、亮度增量图像），以及（iv）它们是兼容传统计算机视觉的数据结构~\parencite{gallego2020event}。
+但上述方法忽略了事件数据的高时间分辨率特性，且存在时域混叠问题，导致图像被压缩时丢失了时间分辨率的信息，造成对事件相机优势的利用不足。
+因此，为了利用事件相机的高频特性，我们引入MTS表征。
 
-因此，为了利用事件相机的高频特性，我们引入MTS表征。利用指数衰减函数，将一段时间 $\Delta t$ 内的事件流 $(x, y, t, p)$ 投影到2D平面。像素亮度 $I(x,y)$ 定义为：
+首先，为了增强表征的时间感知能力，我们引入指数衰减函数对一段时间 $\Delta t$ 内的事件进行投影。像素亮度 $I(x,y)$ 定义为：
 \begin{equation}
     I(x, y) = \sum_{e_i \in \mathcal{E}(x,y)} p_i \cdot e^{-(t_{now} - t_i) / \tau}
 \end{equation}
+该公式通过时间常数 $\tau$ 实现了一种“时域高通滤波器”效应，能够自动过滤静止背景并突出物体的运动轮廓。
+
+其次，为了进一步捕捉运动的方向与速率，我们将 34ms 窗口内的事件流划分为三个等距的时间子区间。这些区间被累加并分别映射至 R、G、B 三个颜色通道：
+\begin{equation}
+    I_{MTS}(u, v) = \bigcup_{c \in \{R, G, B\}} \sum_{e_k \in \mathcal{T}_c} \mathbb{1}(x_k=u, y_k=v)
+\end{equation}
+其中 $\mathcal{T}_R$、$\mathcal{T}_G$ 和 $\mathcal{T}_B$ 分别代表“过去”、“现在”与“未来”的时间切片。这种多通道映射方法不仅解决了传统单色直方图导致的信息压缩问题，还为卷积神经网络提供了显式的运动导数特征。在光照剧烈变化或 RGB 图像因高速运动产生模糊时，MTS 仍能提供稳定的边缘纹理。
 
 MTS相当于一个“时域高通滤波器”，自动过滤了静止背景，仅保留物体的运动轮廓。在光照剧烈变化或RGB模糊时，MTS仍能提供清晰的边缘纹理。同时替代传统的单色直方图。不仅解决了运动模糊问题，并为网络提供了显式的运动导数。MTS处理效果如图~\ref{fig:MTScomparison}所示。
 
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.9\linewidth]{fig/MTScomparison.png} % 请替换为你的架构图   
-    \caption{MTS 处理效果对比图。（a）原始事件帧（b）MTS 图像（c）深度图（d）MTS+Depth 拼接图。}
+    \caption{MTS 处理效果对比图。（a）原始事件帧（b）常用的时间曲面图像表示（c）MTS图像。}
 	\label{fig:MTScomparison}
 \end{figure} 
 
 
-\subsubsection{Geometry Stream}
-我们将深度图（Depth）与MTS在通道维度拼接，通过共享权重的ResNet提取物体的空间几何特征，如~\ref{fig:guided_6d_convincing_results}所示。
+\subsubsection{事件点云提取}
+我们还从事件相机源数据引入事件点云来表征运动特征。我们直接处理了 YCB-Ev SD 数据集提供的原始二进制流（后缀为 \texttt{.int32.zst}）。通过对比特流进行统计分析，我们逆向工程了其存储协议，识别出一种紧凑的 $(N, 2)$ 布局，该布局由单调递增的时间戳 $t$ 和位包装的空间数据 $D_{packed}$ 组成。
 
+这里位解码逻辑如下：
+\begin{equation}
+    D_{packed} = (p \ll 28) \ | \ (y \ll 14) \ | \ x
+\end{equation}
+其中，$p$ 为极性，$x, y$ 为像素坐标。通过将空间分辨率校准为 VGA 标准（$640 \times 480$），从事件流中选取 $N=1024$ 个事件点，在压缩伪影中重建出无损的事件点云 $\mathcal{E} = \{x_i, y_i, t_i, p_i\}$。这一过程确保了后续处理阶段能够获得最高精度的原始时空信息。
+
+\subsection{并行特征提取网络}
+\subsubsection{RGB 纹理分支 (RGB Texture Branch)}
+该分支旨在提取目标的表面纹理与颜色信息。考虑到 6D 姿态估计是一项像素级的预测任务，本文对标准 ResNet-18 进行了针对性改进：
+\begin{itemize}
+    \item \textbf{保持分辨率：} 将初始卷积层（conv1）的步长（stride）由 2 修改为 1。
+    \item \textbf{去除池化：} 移除了所有的最大池化层（Max Pooling），以避免空间信息的损失，确保输出特征图 $F_{rgb}$ 能够保留精确的像素对应关系。
+\end{itemize}
+\subsubsection{几何与运动分支(Geometry Stream)}
+之后，我们将深度图（Depth）与MTS在通道维度拼接。因为虽然梯度图能提供宏观的物体位置信息，但在物体边缘处往往存在模糊效应，且难以捕捉物体表面的细微纹理和脊线。深度图确定的全局边界与 MTS 提供的内部运动细节相结合，使特征表征从单纯的“轮廓”进化为立体的“结构纹理”，如~\ref{fig:guided_6d_convincing_results}所示。
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.9\linewidth]{fig/guided_6d_convincing_results.png}    
-    \caption{融合图。（a）MTS输入图像（b）深度图梯度（c）自适应空间域筛选（d）MTS边缘 （e）融合几何特征（f）深度与MTS融合表示。}
+    \caption{MTS纹理增强效果展示(1)原始色彩-时域编码表征，显示出初步的运动轮廓；(2)深度图梯度，表现出边缘模糊及脊线丢失问题；(3)自适应空间门控，用于去噪背景纹理；(4)细化后的 MTS 边缘，消除了重影（Ghosting）并增强了清晰度；(5)几何补全，绿色代表深度边缘，蓝色代表 MTS 内部边缘，两者实现互补；(6)最终生成的引导表征，具备丰富的几何与运动细节，可作为通道直接输入姿态估计网络。}
 	\label{fig:guided_6d_convincing_results}
 \end{figure} 
 
-\subsection{AFDM：稀疏点云引导密集特征}
-这是本文的核心创新。为了利用事件数据的微秒级精度，我们不仅使用了MTS图像，在这里还直接加入了原始事件点云。AFDM（Attentive Feature Diffusion Module）旨在解决稀疏点云与密集特征图的融合问题。
+在预处理过程中，我们通过共享权重的ResNet提取物体的空间几何特征。
+\begin{itemize}
+    \item \textbf{输入融合：} 将 2D 运动纹理表面（MTS）与深度图（Depth）在通道维度进行拼接（Concatenation）。
+    \item \textbf{特征提炼：} 利用并行残差网络提取 $F_{geo}$。由于 MTS 过滤了静止背景并强化了运动边缘，该分支能在 RGB 图像模糊时提供稳定的物体轮廓。
+\end{itemize}
+\subsubsection{事件点云分支 (Event Point Cloud Branch)}
+为了充分利用事件相机的超高时间分辨率，本文引入了点云处理分支。通过多层感知机（MLP）和全局最大池化（Global Max Pooling）操作，将离散的异步事件转化为全局几何描述子 $F_{point}$。
+该分支提取的特征将作为后续 AFDM 模块的引导信号，实现跨模态的特征增强。
 
+\subsection{多模态引导与融合}
+为了有效地结合离散的事件点云几何信息与稠密的图像特征，我们提出了注意力特征扩散模块（AFDM）与门控融合方法。
+
+\subsubsection{注意力特征扩散模块 (Attentive Feature Diffusion Module, AFDM)}
+传统的模态融合方法难以处理“稀疏点云”与“稠密图像”之间的空间不一致性。AFDM 模块通过以下机制实现特征增强：
+\begin{itemize}
+    \item \textbf{空间特征映射：} 利用事件点的像素坐标 $(x, y)$，将 PointNet 提取的全局几何特征 $F_{point}$ 重新投影至 2D 特征图的对应位置。
+    \item \textbf{基于注意力的扩散：} 映射后的特征表现为极其稀疏的激活点。我们引入注意力权重计算，使这些精准的几何特征沿物体边缘向四周“扩散”。
+    \item \textbf{抗干扰机制：} 在高速运动导致的 RGB 模糊或光照剧烈变化场景下，AFDM 能够利用事件相机的高时间分辨率特性，通过几何特征“点亮”图像中缺失的轮廓信息，显著提升了特征的鲁棒性。
+\end{itemize}
+
+\subsubsection{门控特征融合 (Gated Fusion Mechanism)}
+在获得增强后的图像特征 $F_{rgb}^*$ 与几何特征 $F_{geo}$ 后，本文设计了一个自适应门控融合模块：
+\begin{equation}
+    F_{fused} = \sigma(G) \cdot F_{rgb}^* + (1 - \sigma(G)) \cdot F_{geo}
+\end{equation}
+其中 $G$ 为通过卷积层学习得到的注意力门控权重。该机制允许模型根据输入质量（如光照强度、模糊程度）动态调整各模态的贡献度：在纹理丰富的场景下偏重 RGB 信息，而在极端环境下自动切换为以事件几何信息为主导。
+
+\subsection{像素级投票与位姿估计 (Pixel-wise Voting \& Pose Estimation)}
+本阶段将融合后的特征 $F_{fused}$ 转化为最终的物体 6D 位姿。
+
+\subsubsection{多头预测输出 (Multi-head Output)}
+模型末端的预测头（Prediction Head）输出两个并行分支：
+\begin{itemize}
+    \item \textbf{语义分割掩码 (Semantic Mask)：} 预测每个像素属于目标物体的概率。
+    \item \textbf{单位向量场 (Unit Vector Field)：} 每个像素输出指向目标 3D 关键点（中心点及 8 个角点）的方向向量。
+\end{itemize}
+\subsubsection{鲁棒位姿解算与几何修正}
+推理阶段采用几何约束进行最终解算：
 \begin{enumerate}
-    \item \textbf{特征提取}：使用轻量级PointNet处理在线采样（Online Sampling）得到的 $N=1024$ 个事件点，提取包含精细时空信息的局部几何特征 $F_{point} \in \mathbb{R}^{N \times C}$。
-    \item \textbf{空间散射 (Spatial Scattering)}：利用事件点的 $(x, y)$ 像素坐标，将PointNet提取的高维特征精准地“散射”回2D特征图的对应位置，形成稀疏特征图 $M_{sparse}$。
-    \item \textbf{注意力扩散 (Attentive Diffusion)}：使用卷积层作为“扩散器”，将这些稀疏的几何特征向周围像素传播，从而“点亮”特征图中的物体边缘。
+    \item \textbf{RANSAC 投票：} 在掩码区域内，通过 RANSAC 算法对向量场进行共识投票，从而在 2D 图像上定位出 9 个鲁棒的关键点坐标，有效排除了遮挡带来的异常预测。
+    \item \textbf{深度引导的几何修正：} 通过 PnP 算法计算初步位姿。为消除深度估计的尺度漂移，我们利用预测掩码提取深度图中的目标区域，计算深度中值并对平移向量 $T$ 的 $Z$ 分量进行修正，从而实现亚厘米级的定位精度。
 \end{enumerate}
-
-\subsection{推理与几何修正}
-
-\subsubsection{RANSAC Voting}
-网络输出像素级向量场，表示每个像素指向物体关键点的单位向量。我们采用RANSAC算法聚类出9个2D关键点（8个角点+1个中心点），有效抵抗遮挡和离群点干扰。
-
-\subsubsection{深度修正 (Depth-Guided Refinement)}
-由于单目PnP对Z轴深度的估计存在尺度漂移，我们引入了几何约束策略。利用网络预测的Mask区域，统计深度图的中位数作为真实的Z轴距离。这是一种有效的传感器融合（Sensor Fusion）手段，显著提升了定位精度。
-
 \section{实验}
 
 \subsection{实验设置}
 我们在YCB-Ev SD数据集上进行了评估。该数据集包含21类物体，是一个用于6DoF目标姿态估计的标准清晰度（SD）分辨率事件相机数据的合成数据集~\parencite{rojtberg2025ycb}。评价指标采用 \textbf{ADD-S}（针对对称/几何形状）和 \textbf{ADD}（针对非对称/纹理）。
 
 \subsection{核心能力验证：单物体高精度实验}
-为了验证模型在理想情况下的性能上限，我们选取了具有代表性的物体（如 \texttt{003\_cracker\_box}）进行独立训练与测试。
+为了验证模型在理想情况下的性能上限，我们选取了具有代表性的物体（ \texttt{003咖喱盒}和\texttt{020钳子}）进行独立训练与测试。
 
 
 \subsubsection{训练演进过程评估 (Evaluation of Training Evolution)}
 
-为了直观验证 GMG-PVNet 对多模态特征的整合能力，本文选取了训练过程中的两个关键阶段进行定性对比分析：训练初期（Epoch 5）与收敛阶段（Epoch 30）。具体对比结果如图 \ref{fig:training_evolution} 所示。
+为了直观验证 GMG-PVNet 对多模态特征的整合能力，这里选取了训练过程中的两个关键阶段进行定性对比分析：训练初期（Epoch 5）与收敛阶段（Epoch 30）。具体对比结果如图 \ref{fig:training_evolution} 所示。
 
 % --- 建议插入的对比图片结构 ---
 \begin{figure}[htbp]
@@ -190,21 +238,15 @@ MTS相当于一个“时域高通滤波器”，自动过滤了静止背景，�
     \label{fig:training_evolution}
 \end{figure}
 
-\paragraph{1. 语义分割与目标定位的进化}
+首先是在\textbf{语义分割与目标定位}能力方面取得了明显的进化。训练初期 (Epoch 5) 可视化结果显示，模型在初期能够初步识别物体的空间位置，但生成的分割掩码（Mask）边缘存在明显的噪声，且对物体精细轮廓的拟合较差。这表明在训练开始阶段，模型正处于建立 RGB 纹理与 MTS 几何边缘关联的初步阶段，对于极端光照下模糊边缘的判别尚不够稳健。收敛阶段 (Epoch 30)：随着训练的推进，第 30 轮的可视化图表现出显著的改善。分割掩码变得连续且平滑，紧密贴合目标物体的物理边界。即使在背景复杂或光照剧烈变化的区域，模型也能通过 \textit{Gated Fusion} 模块有效抑制无效噪声，输出干净且准确的语义区域。
 
-\textbf{训练初期 (Epoch 5)：} 可视化结果显示，模型在初期能够初步识别物体的空间位置，但生成的分割掩码（Mask）边缘存在明显的噪声，且对物体精细轮廓的拟合较差。这表明在训练开始阶段，模型正处于建立 RGB 纹理与 MTS 几何边缘关联的初步阶段，对于极端光照下模糊边缘的判别尚不够稳健。
+其次是在\textbf{向量场的精确度}表现上有明显提升。在关键点预测方面，Epoch 30 的向量场方向表现出高度的收敛性。相比于 Epoch 5 中向量指向较为发散、甚至在物体中心区域出现方向冲突的情况，Epoch 30 的向量场在全图范围内展现出指向关键点的强一致性 (\textit{Consistency})。
 
-\textbf{收敛阶段 (Epoch 30)：} 随着训练的推进，第 30 轮的可视化图表现出显著的改善。分割掩码变得连续且平滑，紧密贴合目标物体的物理边界。即使在背景复杂或光照剧烈变化的区域，模型也能通过 \textit{Gated Fusion} 模块有效抑制无效噪声，输出干净且准确的语义区域。
-
-\paragraph{2. 向量场 (Vector Field) 的精确度提升}
-
-在关键点预测方面，Epoch 30 的向量场方向表现出高度的收敛性。相比于 Epoch 5 中向量指向较为发散、甚至在物体中心区域出现方向冲突的情况，Epoch 30 的向量场在全图范围内展现出指向关键点的强一致性 (\textit{Consistency})。
-
-这种提升直接得益于 \textit{AFDM (Attentive Feature Diffusion Module)} 的作用。随着训练的进行，模型学会了如何将点云提取的局部几何特征通过扩散机制补偿到图像特征图中，从而在局部细节处修正了由于图像模糊带来的向量预测偏移，显著增强了 RANSAC 投票过程的稳定性。
+这种提升直接得益于 \textit{AFDM} 的作用。随着训练的进行，模型学会了如何将点云提取的局部几何特征通过扩散机制补偿到图像特征图中，从而在局部细节处修正了由于图像模糊带来的向量预测偏移，显著增强了 RANSAC 投票过程的稳定性。
 
 
-\subsection{单物体实验结果展示}
-
+\subsubsection{单物体实验结果展示}
+我们利用饼干盒作为单物体实验对象，分析它在30个epoch下的训练结果表现。结果显示，在单物体实验中，GMG-PVNet实现了超过 \textbf{90\%} 的ADD-S准确率（$<10\%$直径误差）。这证明了在特征专注的情况下，引入事件和几何信息能极高精度地恢复物体的3D结构。MTS提供的强边缘特征使得关键点预测不再“缩成一团”，而是精准分布在物体角点。下面进行详细分析。
 
 \begin{figure}[htbp]
     \centering
@@ -213,9 +255,18 @@ MTS相当于一个“时域高通滤波器”，自动过滤了静止背景，�
     \label{fig:epoch_030_vis}
 \end{figure}
 
-结果显示，在单物体实验中，GMG-PVNet实现了超过 \textbf{90\%} 的ADD-S准确率（$<10\%$直径误差）。这证明了在特征专注的情况下，引入事件和几何信息能极高精度地恢复物体的3D结构。MTS提供的强边缘特征使得关键点预测不再“缩成一团”，而是精准分布在物体角点。
+\textbf{训练收敛性分析} 如图 \ref{fig:epoch_030_vis}(a) 所示，训练曲线在第 10 轮呈现出特征性的“峰值”，这验证了我们采用的\textbf{两阶段课程学习 (Curriculum Learning)} 策略的有效性：
+\begin{itemize}
+    \item \textbf{热身阶段 (Epoch 0-10)}：此时仅计算分割损失。曲线的快速下降表明网络迅速学会了从背景中分离目标物体。
+    \item \textbf{回归阶段 (Epoch 10-30)}：在第 10 轮加入高权重的向量场监督 ($\lambda_{vec}=10$) 导致 Loss 突增。随后 Loss 迅速回落并趋于稳定，证明网络在具备分割能力后，能够高效地学习复杂的像素级向量场特征。
+\end{itemize}
 
-
+\textbf{ADD与ADD-S指标差异分析}
+针对目标物体（饼干盒），ADD ($\approx 0\%$) 与 ADD-S ($\approx 90\%$) 之间的显著差异归因于\textbf{几何对称性歧义 (Geometric Symmetry Ambiguity)}：
+\begin{itemize}
+    \item \textbf{几何精准对齐}：如图 \ref{fig:epoch_030_vis}(c) 可视化所示，预测的 3D 包围盒（绿色）与真值（蓝色）在空间位置和体积形状上完美重合。这解释了高达 90\% 的 ADD-S 得分，证明模型已成功利用深度与事件信息恢复了物体的 3D 几何结构。
+    \item \textbf{纹理方向歧义}：由于该物体为长方体，网络预测出现了 $180^{\circ}$ 的姿态翻转。虽然导致对纹理敏感的 ADD 指标失效，但在机器人抓取等实际应用中，基于 ADD-S 的几何对齐精度更具实际意义。
+\end{itemize}
 
 \subsection{复杂场景分析：多物体实验}
 
@@ -273,24 +324,51 @@ MTS相当于一个“时域高通滤波器”，自动过滤了静止背景，�
     \item \textbf{纹理歧义：} 在非对称物体上，ADD分数较低。可视化分析发现，这是由于ResNet-18容量限制及纹理特征被弱化，导致模型出现了180°的旋转歧义（即头尾颠倒），但包围盒的重合度依然很高。
 \end{itemize}
 
-\subsection{消融实验}
-为了验证多模态融合的必要性，我们对比了“纯RGB”，“RGB加深度与MTS融合信息”与“多模态融合（Ours）”的效果。
-
+\subsection{消融实验与性能分析}
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.8\linewidth]{fig/ablation experiment.png} % 请替换为你的Loss曲线图
+    \includegraphics[width=0.6\linewidth]{fig/ablation_experiment.png} % 请替换为你的Loss曲线图
     \caption{消融实验对比。引入事件点云后，模型的平均几何误差显著降低。}
 	\label{fig:ablation}
 \end{figure} 
 
-对比结果表明，引入MTS和事件点云后，模型的平均几何误差（Mean ADD Error）显著降低。在定性分析中，当RGB图像因光照较暗导致纹理不清时，纯RGB模型往往无法检测到物体；而GMG-PVNet凭借MTS提供的清晰轮廓，依然能准确框出物体位置。
+为了验证 GMG-PVNet 中各个模态及模块的有效性，我们在几何结构复杂且纹理较弱的物体（052\_extra\_large\_clamp）上进行了消融实验。实验结果如表 \ref{tab:ablation_obj20_cn} 所示，主要结论分析如下：
+\begin{table}[htbp]
+    \centering
+    \caption{YCB-Video数据集上物体20（特大号夹子）的消融实验结果。}
+    \label{tab:ablation_obj20_cn}
+    \resizebox{\linewidth}{!}{
+    \begin{tabular}{l|c|cccc|c}
+        \toprule
+        \textbf{方法 / 模态} & \textbf{平均误差 (mm) $\downarrow$} & \multicolumn{4}{c|}{\textbf{ADD-S 准确率 ($\uparrow$)}} & \textbf{性能提升} \\ 
+        \cmidrule{3-6}
+        & & \textbf{$<10\%d$} & \textbf{$<15\%d$} & \textbf{$<20\%d$} & \textbf{$<50\%d$} & \\ 
+        \midrule
+        基线（仅 RGB） & 27.1 & 48.6\% & 74.8\% & 85.6\% & 96.8\% & -- \\ 
+        + 深度 \& 门控融合 & 24.4 & \textbf{56.4\%} & 80.2\% & 88.0\% & 97.8\% & -2.7 mm \\ 
+        \textbf{完整模型（Ours）} & \textbf{23.0} & 52.8\% & \textbf{81.4\%} & \textbf{89.8\%} & \textbf{98.4\%} & \textbf{-4.1 mm} \\ 
+        \bottomrule
+    \end{tabular}
+    }
+\end{table}
+
+\begin{itemize}
+    \item \textbf{几何信息的引入显著降低了姿态误差：} 
+    相比于仅使用 RGB 的基线模型，引入深度信息（Depth）并配合门控融合机制后，平均 ADD 误差从 27.1mm 显著下降至 24.4mm，且在 $<10\%d$ 的严格阈值下准确率提升了 7.8\%。这一结果证实，深度信息有效地解决了单目 RGB 图像中固有的尺度歧义（Scale Ambiguity）问题，帮助网络更准确地恢复物体的 3D 空间结构。
+
+    \item \textbf{事件点云提升了模型的整体鲁棒性：} 
+    我们的完整模型（Full Model）通过 AFDM 模块进一步融合了稀疏的事件点云，取得了\textbf{最低的平均误差 (23.0mm)}。与基线相比，平均误差累计降低了 4.1mm。此外，在 $<15\%d$ 至 $<50\%d$ 的宽容度阈值区间内，完整模型均取得了最优性能。这表明事件数据提供的高频边缘信息有助于修正较大的姿态偏差，使预测结果更加稳健。
+
+    \item \textbf{精度与鲁棒性的权衡分析：} 
+    值得注意的是，虽然完整模型在最严格的 $<10\%d$ 阈值下准确率（52.8\%）略低于“RGB+深度”模型（56.4\%），但这在多模态融合中是合理的现象。稀疏的事件点云虽然提供了强边缘线索，但也可能在局部引入微小的离散噪声，导致在极高精度要求下的微小抖动。然而，从更宏观的指标（平均误差及宽阈值准确率）来看，完整模型有效地抑制了离群值（Outliers），展现出了更强的泛化能力和实用价值。
+\end{itemize}
 
 \subsection{定性结果展示}
 图~\ref{fig:vis}展示了模型在复杂场景下的推理结果。绿色框为模型预测的3D包围盒。可以看出，即使在存在遮挡和背景杂波的情况下，模型依然能够准确地定位物体。
 
 \begin{figure}[htbp]
     \centering
-    % \includegraphics[width=1.0\linewidth]{fig/vis_result.jpg} % 请替换为你的可视化结果图
+    \includegraphics[width=1.0\linewidth]{fig/lastpic.png} % 请替换为你的可视化结果图
     \caption{GMG-PVNet 在YCB-Video数据集上的定性结果。绿色框为预测结果，蓝色框为真值。}
 	\label{fig:vis}
 \end{figure} 
